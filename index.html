@@ -2,7 +2,6 @@
 <html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pi Viet - AI Viet Bai Pi</title>
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://sdk.minepi.com; script-src 'self' https://sdk.minepi.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com;">
 <style>body{font-family:system-ui;background:#2A1A5E;color:#fff;padding:20px;text-align:center}input,button{width:100%;padding:14px;border-radius:12px;border:0;margin:8px 0;font-size:16px}button{background:#FFD700;font-weight:700}.card{background:#fff;color:#222;border-radius:14px;padding:16px;margin-top:12px;text-align:left;white-space:pre-wrap}</style>
 </head><body>
 <h1>π Pi Viet</h1><p>AI Viet Bai Pi</p>
@@ -11,12 +10,11 @@
 <button onclick="gen()">Viet Bai Ngay</button>
 <div id="out"></div>
 <script>
-let sessionToken=null;
+Pi.init({version:"2.0", sandbox:false});
 async function login(){
-  try{ await Pi.init({version:"2.0"});
+  try{
     const auth = await Pi.authenticate(["username"], function(p){});
-    const r = await fetch("https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})});
-    const d = await r.json(); sessionToken=d.sessionToken; document.getElementById("user").innerText="Xin chao @"+d.user.username;
+    document.getElementById("user").innerText="Xin chao @" + (auth.user && auth.user.username ? auth.user.username : "Pioneer");
   }catch(e){ alert("Loi dang nhap Pi: "+e.message); }
 }
 document.getElementById("loginBtn").onclick=login;

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi Viet - AI Viet Bai Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://sdk.minepi.com; script-src 'self' https://sdk.minepi.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com;">
+<style>body{font-family:system-ui;background:#2A1A5E;color:#fff;padding:20px;text-align:center}input,button{width:100%;padding:14px;border-radius:12px;border:0;margin:8px 0;font-size:16px}button{background:#FFD700;font-weight:700}.card{background:#fff;color:#222;border-radius:14px;padding:16px;margin-top:12px;text-align:left;white-space:pre-wrap}</style>
+</head><body>
+<h1>π Pi Viet</h1><p>AI Viet Bai Pi</p>
+<button id="loginBtn">Dang nhap bang Pi</button><p id="user"></p>
+<input id="topic" placeholder="Nhap chu de, vd: Tau ngam Pi">
+<button onclick="gen()">Viet Bai Ngay</button>
+<div id="out"></div>
+<script>
+let sessionToken=null;
+async function login(){
+  try{ await Pi.init({version:"2.0"});
+    const auth = await Pi.authenticate(["username"], function(p){});
+    const r = await fetch("https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})});
+    const d = await r.json(); sessionToken=d.sessionToken; document.getElementById("user").innerText="Xin chao @"+d.user.username;
+  }catch(e){ alert("Loi dang nhap Pi: "+e.message); }
+}
+document.getElementById("loginBtn").onclick=login;
+const titles=["TAU NGAM PI SAP NOI LEN - 17/11","Lo trinh rieng - Chi nguoi kien nhan moi biet","Pi Summit 17-19/11: 3 ngay quyet dinh"];
+function gen(){
+  const t=document.getElementById("topic").value||"Tau ngam Pi";
+  const title=titles[Math.floor(Math.random()*titles.length)];
+  const body="Pi Network giong nhu mot tau ngam mang ten Pi. Tren mat nuoc, ai cung thay Bitcoin, ETH, DOGE. Duoi day, tau ngam Pi lang le lan sau. Chi nhung nguoi kien nhan moi biet no o dau. Chu de hom nay: "+t+". 17-19/11 nay, tau ngam se noi len. Ban con o tren tau khong?";
+  document.getElementById("out").innerHTML="<div class='card'><b>Tieu de:</b>\n"+title+"\n\n<b>Bai viet:</b>\n"+body+"\n\n<b>Hashtag:</b>\n#PiNetwork #Pi #PiViet #Pioneers #1711</div>";
+}
+</script></body></html>

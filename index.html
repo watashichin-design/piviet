@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pi Việt - AI Viết Bài Pi</title>
-<style>body{font-family:system-ui,sans-serif;background:#1a0b2e;color:#fff;margin:0;padding:20px;text-align:center}h1{color:#facc15}.card{background:#fff;color:#222;border-radius:16px;padding:16px;max-width:520px;margin:16px auto;text-align:left}button{background:#7c3aed;color:#fff;border:0;padding:12px 16px;border-radius:12px;width:100%;font-weight:700;margin-top:10px;cursor:pointer}input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:8px;box-sizing:border-box}pre{white-space:pre-wrap;background:#f3f4f6;padding:12px;border-radius:10px;min-height:120px}</style>
+<style>body{font-family:system-ui,sans-serif;background:#1a0b2e;color:#fff;margin:0;padding:20px;text-align:center}h1{color:#facc15}.card{background:#fff;color:#222;border-radius:16px;padding:16px;max-width:560px;margin:14px auto;text-align:left}button{background:#7c3aed;color:#fff;border:0;padding:12px 16px;border-radius:12px;width:100%;font-weight:700;margin-top:10px;cursor:pointer}.btn2{background:#059669}input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:8px;box-sizing:border-box}pre{white-space:pre-wrap;background:#f3f4f6;padding:12px;border-radius:10px;min-height:100px}img{width:100%;border-radius:12px;margin-top:10px;display:none}iframe{width:100%;height:280px;border:0;border-radius:12px;margin-top:10px;display:none}</style>
 </head><body>
-<h1>π Pi Việt</h1><p>AI Viết Bài Pi</p>
-<div class="card"><h3>Đăng nhập bằng Pi</h3><p id="user">Chưa đăng nhập - mở bằng Pi Browser để đăng nhập</p><p id="status"></p></div>
-<div class="card"><h3>AI Viết Bài Pi</h3><input id="topic" placeholder="Nhập chủ đề, vd: Tàu ngầm Pi"><select id="style"><option>TikTok</option><option>Facebook</option><option>CapCut</option></select><button id="btnWrite" type="button">Viết Bài Ngay</button><pre id="out">Nhập chủ đề rồi bấm Viết Bài Ngay</pre><button id="btnCopy" type="button">Copy Bài Viết</button></div>
+<h1>π Pi Việt</h1><p>AI Viết Bài Pi - Có Hình + Clip</p>
+<div class="card"><h3>1. Nhập Chủ Đề</h3><input id="topic" placeholder="Nhập chủ đề, vd: PiDex Q1 2027"><select id="style"><option>TikTok</option><option>【entity-Facebook¦canonical_name=Facebook】</option><option>【entity-CapCut¦canonical_name=CapCut】</option></select><button id="btnWrite" type="button">Viết 3 Bài Ngay</button></div>
+<div class="card"><h3>2. Thêm Hình / Clip</h3><p>Chọn hình từ điện thoại:</p><input type="file" id="imgInput" accept="image/*"><img id="previewImg"><p style="margin-top:12px">Dán link TikTok / YouTube:</p><input id="videoLink" placeholder="Dán link clip vô đây"><button class="btn2" id="btnVideo" type="button">Hiện Clip</button><div id="videoBox"></div></div>
+<div class="card"><h3>Mẫu 1 - Tin Tức</h3><pre id="out1">Nhập chủ đề rồi bấm Viết 3 Bài Ngay</pre><button class="btn2" onclick="copyOne('out1')">Copy Mẫu 1</button></div>
+<div class="card"><h3>Mẫu 2 - Cảm Xúc</h3><pre id="out2">...</pre><button class="btn2" onclick="copyOne('out2')">Copy Mẫu 2</button></div>
+<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác</h3><pre id="out3">...</pre><button class="btn2" onclick="copyOne('out3')">Copy Mẫu 3</button></div>
 <script>
 function vietBaiNgay(){
-  try{
-    var t=document.getElementById('topic').value.trim() || 'Tàu ngầm Pi';
-    var s=document.getElementById('style').value;
-    var txt='['+s+'] '+t+'\n\nPi Network đang bước vào giai đoạn quan trọng. Kiên trì khai thác mỗi ngày, đừng bỏ cuộc.\n\n'+t+' - Pioneers cùng nhau giữ vững niềm tin, chờ ngày Pi bay cao!\n\n#PiNetwork #PiViet #piviet #PiCoin #Pi';
-    document.getElementById('out').textContent=txt;
-  }catch(e){ alert('Lỗi: '+e.message); }
+  var t=document.getElementById('topic').value.trim() || 'PiDex Q1 2027';
+  var s=document.getElementById('style').value;
+  var tag='\n\n#PiNetwork #PiViet #piviet #PiCoin #Pi';
+  document.getElementById('out1').textContent='['+s+' - TIN TỨC] '+t+'\n\nNÓNG: '+t+' chính thức được nhắc đến. Pi Network đang bước vào giai đoạn quan trọng nhất.\n\nPioneers nhớ theo dõi, đừng bỏ lỡ!'+tag;
+  document.getElementById('out2').textContent='['+s+' - CẢM XÚC] '+t+'\n\nBao năm khai thác, cuối cùng chúng ta cũng thấy ánh sáng: '+t+'.\n\nĐừng bỏ cuộc! Cùng nhau chờ ngày Pi bay cao!'+tag;
+  document.getElementById('out3').textContent='['+s+' - HỎI BẠN] '+t+'\n\nBạn nghĩ sao về '+t+'?\n\n1. Tin Pi sẽ bay cao\n2. Vẫn còn chờ thêm\n\nComment số 1 hoặc 2 cho tui biết!'+tag;
 }
-function copyBaiViet(){
-  try{
-    var t=document.getElementById('out').textContent;
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ alert('Đã copy!'); }); }
-    else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Đã copy!'); }
-  }catch(e){ alert('Copy thất bại, bạn chọn tay nhé'); }
+function copyOne(id){
+  var t=document.getElementById(id).textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ alert('Đã copy!'); });
 }
 document.getElementById('btnWrite').addEventListener('click', vietBaiNgay);
-document.getElementById('btnCopy').addEventListener('click', copyBaiViet);
+document.getElementById('imgInput').addEventListener('change', function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){ var img=document.getElementById('previewImg'); img.src=r.result; img.style.display='block'; };
+  r.readAsDataURL(f);
+});
+document.getElementById('btnVideo').addEventListener('click', function(){
+  var link=document.getElementById('videoLink').value.trim();
+  if(!link){ alert('Dán link clip vô trước nha'); return; }
+  document.getElementById('videoBox').innerHTML='<p>Link clip của bạn:<br><a href="'+link+'" target="_blank">'+link+'</a><br><br>Bấm link để mở clip, copy link này kèm bài viết khi đăng TikTok!</p>';
+});
 </script></body></html>

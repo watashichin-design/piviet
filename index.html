@@ -1,39 +1,27 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pi Viet - AI Viet Bai Pi</title>
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<style>body{font-family:system-ui,sans-serif;background:#1a0b2e;color:#fff;margin:0;padding:20px;text-align:center}h1{color:#facc15}.card{background:#fff;color:#222;border-radius:16px;padding:16px;max-width:520px;margin:16px auto;text-align:left}button{background:#7c3aed;color:#fff;border:0;padding:12px 16px;border-radius:12px;width:100%;font-weight:700;margin-top:10px}input,textarea,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:8px;box-sizing:border-box}pre{white-space:pre-wrap;background:#f3f4f6;padding:12px;border-radius:10px}</style>
+<title>Pi Việt - AI Viết Bài Pi</title>
+<style>body{font-family:system-ui,sans-serif;background:#1a0b2e;color:#fff;margin:0;padding:20px;text-align:center}h1{color:#facc15}.card{background:#fff;color:#222;border-radius:16px;padding:16px;max-width:520px;margin:16px auto;text-align:left}button{background:#7c3aed;color:#fff;border:0;padding:12px 16px;border-radius:12px;width:100%;font-weight:700;margin-top:10px;cursor:pointer}input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:8px;box-sizing:border-box}pre{white-space:pre-wrap;background:#f3f4f6;padding:12px;border-radius:10px;min-height:120px}</style>
 </head><body>
-<h1>π Pi Viet</h1><p>AI Viet Bai Pi</p>
-<div class="card"><h3>Dang nhap bang Pi</h3><p id="user">Chua dang nhap</p><button onclick="login()">Dang nhap bang Pi</button><button onclick="testPay()">Test Pi Payment (0.001 Pi)</button><p id="status"></p></div>
-<div class="card"><h3>AI Viet Bai Pi</h3><input id="topic" placeholder="Nhap chu de, vd: Tau ngam Pi"><select id="style"><option>TikTok</option><option>Facebook</option><option>CapCut</option></select><button onclick="write()">Viet Bai Ngay</button><pre id="out">Nhap chu de roi bam Viet Bai Ngay</pre><button onclick="copyOut()">Copy Bai Viet</button></div>
+<h1>π Pi Việt</h1><p>AI Viết Bài Pi</p>
+<div class="card"><h3>Đăng nhập bằng Pi</h3><p id="user">Chưa đăng nhập - mở bằng Pi Browser để đăng nhập</p><p id="status"></p></div>
+<div class="card"><h3>AI Viết Bài Pi</h3><input id="topic" placeholder="Nhập chủ đề, vd: Tàu ngầm Pi"><select id="style"><option>TikTok</option><option>Facebook</option><option>CapCut</option></select><button id="btnWrite" type="button">Viết Bài Ngay</button><pre id="out">Nhập chủ đề rồi bấm Viết Bài Ngay</pre><button id="btnCopy" type="button">Copy Bài Viết</button></div>
 <script>
-var Pi = window.Pi;
-try{ Pi.init({version:"2.0", sandbox:false}); }catch(e){}
-function onIncompletePaymentFound(payment){ document.getElementById('status').innerText = 'Dang xu ly thanh toan do: ' + payment.identifier; }
-async function login(){
+function vietBaiNgay(){
   try{
-    var scopes=['username','payments'];
-    var auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
-    document.getElementById('user').innerText = 'Xin chao @' + auth.user.username;
-    document.getElementById('status').innerText = 'Dang nhap thanh cong';
-  }catch(e){ document.getElementById('status').innerText = 'Can mo bang Pi Browser de dang nhap Pi. ' + e; }
+    var t=document.getElementById('topic').value.trim() || 'Tàu ngầm Pi';
+    var s=document.getElementById('style').value;
+    var txt='['+s+'] '+t+'\n\nPi Network đang bước vào giai đoạn quan trọng. Kiên trì khai thác mỗi ngày, đừng bỏ cuộc.\n\n'+t+' - Pioneers cùng nhau giữ vững niềm tin, chờ ngày Pi bay cao!\n\n#PiNetwork #PiViet #piviet #PiCoin #Pi';
+    document.getElementById('out').textContent=txt;
+  }catch(e){ alert('Lỗi: '+e.message); }
 }
-async function testPay(){
+function copyBaiViet(){
   try{
-    await Pi.createPayment({amount:0.001, memo:"Test Pi Viet", metadata:{type:"test"}}, {
-      onReadyForServerApproval:function(id){ document.getElementById('status').innerText='Cho duyet: '+id; },
-      onReadyForServerCompletion:function(id,tx){ document.getElementById('status').innerText='Hoan tat: '+tx; },
-      onCancel:function(id){ document.getElementById('status').innerText='Da huy: '+id; },
-      onError:function(e){ document.getElementById('status').innerText='Loi: '+e; }
-    });
-  }catch(e){ document.getElementById('status').innerText='Can mo bang Pi Browser. '+e; }
+    var t=document.getElementById('out').textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ alert('Đã copy!'); }); }
+    else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Đã copy!'); }
+  }catch(e){ alert('Copy thất bại, bạn chọn tay nhé'); }
 }
-function write(){
-  var t=document.getElementById('topic').value||'Tau ngam Pi';
-  var s=document.getElementById('style').value;
-  var txt='['+s+'] '+t+'\n\nPi Network dang buoc vao giai doan quan trong. Kien tri khai thac moi ngay, dung bo cuoc.\n\n#PiNetwork #PiViet #piviet #PiCoin #Pi';
-  document.getElementById('out').innerText=txt;
-}
-function copyOut(){ var t=document.getElementById('out').innerText; navigator.clipboard.writeText(t); alert('Da copy!'); }
+document.getElementById('btnWrite').addEventListener('click', vietBaiNgay);
+document.getElementById('btnCopy').addEventListener('click', copyBaiViet);
 </script></body></html>

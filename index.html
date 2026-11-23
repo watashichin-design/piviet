@@ -62,13 +62,15 @@ function onIncompletePaymentFound(p){ console.log("incomplete",p); }
 function setStatus(t){ var s=document.getElementById('piStatus'); if(s) s.innerText=t; }
 function setDebug(t){ var d=document.getElementById('piDebug'); if(d) d.innerText=t; }
 function loginWithPi(){
+  if(window.__piviet_logging_in){ setStatus("Đang đăng nhập rồi, đợi 1 chút..."); return; }
+  window.__piviet_logging_in = true;
   setStatus("Bước 1/3: Đã bấm nút — đang gọi Pi...");
   setDebug("Đã bấm nút lúc " + new Date().toLocaleTimeString() + " — nếu dòng này đổi là nút đã chạy.");
-  if(!window.Pi){ setStatus("Bạn đang mở bằng Chrome, Pi không chạy ở đây. Mở bằng Pi Browser."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); return; }
-  Pi.init({ version: "2.0" }).then(function(){
-    setStatus("Bước 2/3: Pi đã sẵn sàng, đang mở bảng đăng nhập Pi...");
-    return Pi.authenticate(["username"], onIncompletePaymentFound);
-  }).then(function(auth){
+  if(!window.Pi){ setStatus("Bạn đang mở bằng Chrome, Pi không chạy ở đây. Mở bằng Pi Browser."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); window.__piviet_logging_in=false; return; }
+  // Pi.init là hàm SYNC, KHÔNG được .then() lên nó - .then() sẽ crash
+  try{ Pi.init({ version: "2.0" }); }catch(e){ /* Pi.init có thể đã gọi rồi, cứ tiếp tục */ }
+  setStatus("Bước 2/3: Pi đã sẵn sàng, đang mở bảng đăng nhập Pi...");
+  Pi.authenticate(["username"], onIncompletePaymentFound).then(function(auth){
     setStatus("Bước 3/3: Pi đã đồng ý, đang đổi lấy session với App Studio...");
     return fetch(APPSTUDIO_LOGIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})}).then(function(res){ if(!res.ok) throw new Error("App Studio trả về "+res.status); return res.json(); });
   }).then(function(data){
@@ -77,7 +79,9 @@ function loginWithPi(){
     var b2=document.getElementById('piLoginBtn2'); if(b2) b2.innerText="● Đã đăng nhập: "+piUser.username;
     setStatus("Đã đăng nhập Pi: "+piUser.username+" — xong, quay lại App Studio bấm Check Again.");
     setDebug("Đăng nhập OK: "+piUser.username);
+    window.__piviet_logging_in=false;
   }).catch(function(e){
+    window.__piviet_logging_in=false;
     setStatus("Đăng nhập chưa được: "+(e&&e.message?e.message:e));
     setDebug("Lỗi chi tiết: "+(e&&e.message?e.message:e)+" | Pi có sẵn: "+(!!window.Pi));
   });
@@ -113,15 +117,15 @@ function showImg(e){ var f=e.target.files[0]; if(!f) return; var url=URL.createO
 function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var embed=''; var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); if(yt) embed='<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>'; else embed='<p>Mở link này trong app TikTok / YouTube:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; document.getElementById('clipBox').innerHTML=embed; }
 // Bind all buttons by code, no inline onclick, click + touchstart for Pi Browser WebView
 function bindAll(){
-  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',loginWithPi); b1.addEventListener('touchstart',loginWithPi); }
-  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',loginWithPi); b2.addEventListener('touchstart',loginWithPi); }
+  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',loginWithPi); }
+  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',loginWithPi); }
   var m=document.getElementById('make3Btn'); if(m) m.addEventListener('click',make3);
   var sc=document.getElementById('showClipBtn'); if(sc) sc.addEventListener('click',showClip);
   var ii=document.getElementById('imgInput'); if(ii) ii.addEventListener('change',showImg);
   document.querySelectorAll('.bottom button').forEach(function(b){ b.addEventListener('click',function(){ switchTab(b.getAttribute('data-tab'),b); }); });
   document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ copyMau(b.getAttribute('data-copy')); }); });
   document.querySelectorAll('[data-make]').forEach(function(b){ b.addEventListener('click',function(){ var all=NEWS_VN.concat(NEWS_QT); var n=all.find(function(x){return x.title===b.getAttribute('data-make')}); if(!n) return; document.getElementById('newsInput').value=n.title+'. '+n.sum; var tb=document.querySelectorAll('.bottom button')[2]; switchTab('tao',tb); make3(); }); });
-  setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được.");
+  setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); setTimeout(function(){ setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); }, 800);
   setStatus("JS đã chạy tới cuối file — bấm nút thử đi, dòng này sẽ đổi.");
 }
 bindAll();

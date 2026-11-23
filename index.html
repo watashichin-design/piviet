@@ -1,28 +1,94 @@
-<!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pi Việt - AI Viết Bài Pi</title>
-<style>body{font-family:system-ui,sans-serif;background:#1a0b2e;color:#fff;margin:0;padding:20px;text-align:center}h1{color:#facc15}.card{background:#fff;color:#222;border-radius:16px;padding:16px;max-width:560px;margin:14px auto;text-align:left}button{background:#7c3aed;color:#fff;border:0;padding:12px 16px;border-radius:12px;width:100%;font-weight:700;margin-top:10px;cursor:pointer}.btn2{background:#059669}.news{display:block;background:#f3f4f6;padding:10px;border-radius:10px;margin-top:8px;text-decoration:none;color:#222;font-weight:600}input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:8px;box-sizing:border-box}pre{white-space:pre-wrap;background:#f3f4f6;padding:12px;border-radius:10px;min-height:100px}img{width:100%;border-radius:12px;margin-top:10px;display:none}</style>
-</head><body>
-<h1>π Pi Việt</h1><p>AI Viết Bài Pi - Có Tin Quốc Tế + Hình + Clip</p>
-<div class="card"><h3>1. Tin Thời Sự Quốc Tế</h3><a class="news" href="https://www.coindesk.com/" target="_blank">🌍 CoinDesk - Tin Crypto Quốc Tế</a><a class="news" href="https://cointelegraph.com/" target="_blank">📰 CoinTelegraph - Tin Crypto Quốc Tế</a><a class="news" href="https://minepi.com/" target="_blank">π Pi Network - Trang Chính Thức</a><a class="news" href="https://www.binance.com/en/square" target="_blank">📈 【entity-Binance¦canonical_name=Binance】 Square - Tin Pi</a></div>
-<div class="card"><h3>2. Dán Tin Quốc Tế Vô Đây</h3><textarea id="newsText" rows="3" placeholder="Copy đoạn tin quốc tế rồi dán vô đây, vd: PiDex will launch on Mainnet Q1 2027..."></textarea><input id="topic" placeholder="Nhập chủ đề, vd: PiDex Q1 2027"><select id="style"><option>TikTok</option><option> Facebook</option><option> CapCut</option></select><button id="btnWrite" type="button">Viết 3 Bài Từ Tin Này</button></div>
-<div class="card"><h3>3. Thêm Hình / Clip</h3><input type="file" id="imgInput" accept="image/*"><img id="previewImg"><input id="videoLink" placeholder="Dán link TikTok / YouTube vô đây"><button class="btn2" id="btnVideo" type="button">Hiện Clip</button><div id="videoBox"></div></div>
-<div class="card"><h3>Mẫu 1 - Tin Tức</h3><pre id="out1">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</pre><button class="btn2" onclick="copyOne('out1')">Copy Mẫu 1</button></div>
-<div class="card"><h3>Mẫu 2 - Cảm Xúc</h3><pre id="out2">...</pre><button class="btn2" onclick="copyOne('out2')">Copy Mẫu 2</button></div>
-<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác</h3><pre id="out3">...</pre><button class="btn2" onclick="copyOne('out3')">Copy Mẫu 3</button></div>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PiViet - Bản Free</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
+.top{position:sticky;top:0;z-index:10;background:#0d0318;border-bottom:1px solid #2a1450;padding:12px 14px;display:flex;gap:10px;align-items:center}
+.logo{width:44px;height:44px;background:#6a1fa2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ffd700;font-weight:900}
+.top b{font-size:20px}.top span{display:block;font-size:11px;letter-spacing:1px;color:#c9a8ff}
+.free{background:#22c55e;color:#0d0318;font-size:11px;font-weight:900;padding:4px 8px;border-radius:20px;margin-left:auto}
+.card{background:#fff;color:#222;border-radius:16px;margin:12px 14px;padding:16px}
+.card.dark{background:#1e0f36;color:#fff;border:1px solid #2a1450}
+.card h3{margin:0 0 8px}.tag{display:inline-block;background:#ffd700;color:#3b0a5e;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px}
+.time{color:#a78bfa;font-size:12px}.card.dark .time{color:#a78bfa}
+.newsimg{width:100%;height:170px;object-fit:cover;border-radius:12px;margin:8px 0}
+input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;border:1px solid #ddd;background:#fff;color:#222;font-size:15px}
+.dark input,.dark textarea,.dark select{background:#0d0318;color:#fff;border-color:#3a1e6a}
+.btn{width:100%;background:#6a1fa2;color:#fff;border:0;padding:13px;border-radius:12px;font-weight:800;cursor:pointer;margin-top:6px;font-size:15px}
+.btn-green{background:#22c55e;color:#0d0318}.btn-copy{background:#e9f9ee;color:#166534;border:1px solid #bbf7d0;padding:10px;border-radius:12px;font-weight:800;cursor:pointer;width:100%;margin-top:8px}
+.hidden{display:none}.preview-img{width:100%;border-radius:12px;margin-top:8px;display:none}
+.mau{white-space:pre-wrap;line-height:1.6;font-size:15px;background:#f8f5ff;border-radius:12px;padding:12px;margin-top:8px;min-height:80px}
+.bottom{position:fixed;left:12px;right:12px;bottom:12px;background:#1e0f36;border:1px solid #3a1e6a;border-radius:20px;display:flex;justify-content:space-around;padding:10px 6px;z-index:20}
+.bottom button{background:none;border:0;color:#a78bfa;cursor:pointer;font-size:12px}.bottom button.active{color:#fff}.bottom span{font-size:22px;display:block}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#ffd700;color:#3b0a5e;padding:10px 18px;border-radius:20px;font-weight:800;display:none;z-index:99}
+iframe{width:100%;border:0;border-radius:12px}
+</style></head><body>
+<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span></div>
+
+<div id="tab-vn">
+<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span><p style="color:#d8c8ff;font-size:13px">Bản free — giá live sẽ gắn sau, không cần trả Pi cho App Studio.</p></div>
+<div style="padding:0 14px"><h3>📰 Mới nhất</h3></div><div id="listVN"></div>
+</div>
+
+<div id="tab-qt" class="hidden"><div style="padding:6px 14px"><h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span></h3></div><div id="listQT"></div></div>
+
+<div id="tab-tao" class="hidden">
+<div class="card"><h3>2. Dán Tin Quốc Tế Vô Đây</h3>
+<textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây... Ví dụ: PiDex will launch on Mainnet Q1 2027..."></textarea>
+<input id="topicInput" placeholder="Chủ đề — vd: PiDex, Giá Pi, Ecosystem">
+<select id="platformSelect"><option>TikTok</option><option>Facebook</option><option>YouTube</option></select>
+<button class="btn" onclick="make3()">✨ Viết 3 Bài Từ Tin Này</button>
+<p style="font-size:12px;color:#666">Dán tin rồi bấm nút tím — 3 mẫu dưới sẽ tự đầy chữ.</p></div>
+
+<div class="card"><h3>3. Thêm Hình / Clip</h3>
+<label style="font-size:13px">Chọn hình từ điện thoại:</label>
+<input type="file" id="imgInput" accept="image/*" onchange="showImg(event)">
+<img id="imgPreview" class="preview-img">
+<input id="clipLink" placeholder="Dán link TikTok / YouTube vô đây...">
+<button class="btn btn-green" onclick="showClip()">▶ Hiện Clip</button>
+<div id="clipBox" style="margin-top:8px"></div></div>
+
+<div class="card"><h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span></h3><div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div><button class="btn-copy" onclick="copyMau('mau1')">📋 Copy Mẫu 1</button></div>
+<div class="card"><h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span></h3><div id="mau2" class="mau">...</div><button class="btn-copy" onclick="copyMau('mau2')">📋 Copy Mẫu 2</button></div>
+<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span></h3><div id="mau3" class="mau">...</div><button class="btn-copy" onclick="copyMau('mau3')">📋 Copy Mẫu 3</button></div>
+<p style="text-align:center;color:#a78bfa;font-size:12px;padding:0 14px">Bản nháp tự lưu — tắt app mở lại vẫn còn.</p>
+</div>
+
+<div class="bottom">
+<button class="active" onclick="switchTab('vn',this)"><span>📰</span>Tin Pi Việt Nam</button>
+<button onclick="switchTab('qt',this)"><span>🌍</span>Tin Quốc Tế</button>
+<button onclick="switchTab('tao',this)"><span>✎</span>Tạo Bài Đăng</button>
+</div><div class="toast" id="toast">Đã sao chép!</div>
 <script>
-function vietBaiNgay(){
-  var t=document.getElementById('topic').value.trim() || 'PiDex Q1 2027';
-  var news=document.getElementById('newsText').value.trim();
-  var s=document.getElementById('style').value;
-  var tag='\n\n#PiNetwork #PiViet #piviet #PiCoin #Pi';
-  var nguon = news ? '\n\nNguồn tin quốc tế: '+news.substring(0,200) : '';
-  document.getElementById('out1').textContent='['+s+' - TIN TỨC] '+t+'\n\nNÓNG TỪ BÁO QUỐC TẾ: '+t+' đang được nhắc đến khắp nơi. Pi Network đang bước vào giai đoạn quan trọng nhất.'+nguon+tag;
-  document.getElementById('out2').textContent='['+s+' - CẢM XÚC] '+t+'\n\nĐọc tin quốc tế xong mới thấy: '+t+' không phải tin đồn. Bao năm chờ đợi, cuối cùng cũng thấy ánh sáng.\n\nĐừng bỏ cuộc! Cùng nhau chờ ngày Pi bay cao!'+nguon+tag;
-  document.getElementById('out3').textContent='['+s+' - HỎI BẠN] '+t+'\n\nTin quốc tế vừa đưa: '+t+'.\n\nBạn tin không?\n1. Tin, Pi sẽ bay cao\n2. Vẫn còn chờ thêm\n\nComment 1 hoặc 2 cho tui biết!'+tag;
+const NEWS_VN=[
+{cat:'Pi Việt Nam',title:'Pioneer Việt Nam trao đổi hàng bằng Pi ngày càng sôi động',sum:'Cộng đồng Pioneer Việt đang chia sẻ nhiều cách trao đổi hàng hoá, dịch vụ bằng Pi trong đời sống hàng ngày.',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800',time:'2 giờ trước'},
+{cat:'Ecosystem Summit',title:'Ecosystem Summit: các app Pi trình diễn tính năng mới',sum:'Các đội xây app trong hệ sinh thái Pi giới thiệu bản cập nhật mới, tập trung vào trải nghiệm mobile và thanh toán.',img:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800',time:'5 giờ trước'},
+{cat:'PiDex',title:'PiDex là gì? Chợ giao dịch trong hệ sinh thái Pi',sum:'Giải thích đơn giản PiDex cho người mới: giao dịch, thanh khoản và cách Pioneer cần hiểu trước khi tham gia.',img:'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800',time:'1 ngày trước'},
+];
+const NEWS_QT=[
+{cat:'Quốc tế',title:'Pi Network mở rộng cộng đồng quốc tế: Pioneer ở nhiều nước tham gia',sum:'Bản dịch tiếng Việt: Cộng đồng Pi quốc tế tiếp tục lớn mạnh, nhiều sự kiện trực tuyến được tổ chức cho Pioneer.',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',time:'3 giờ trước'},
+{cat:'Quốc tế',title:'Tin quốc tế: các app Pi hướng tới người dùng phổ thông',sum:'Bản dịch tiếng Việt: Xu hướng chung là làm app dễ dùng hơn, nhanh hơn, ít bước hơn cho người mới.',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',time:'6 giờ trước'},
+];
+function card(n){return `<div class="card"><span class="tag">${n.cat}</span> <span class="time">${n.time}</span><h3 style="margin-top:8px">${n.title}</h3><img class="newsimg" src="${n.img}"><p style="color:#444">${n.sum}</p><button class="btn" onclick="makeFrom('${n.title.replace(/'/g,'')}')">✎ Tạo từ tin này</button></div>`}
+document.getElementById('listVN').innerHTML=NEWS_VN.map(card).join('');
+document.getElementById('listQT').innerHTML=NEWS_QT.map(card).join('');
+function switchTab(id,btn){document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');['vn','qt','tao'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==id));window.scrollTo(0,0);}
+function clean(s){return s.trim().replace(/\s+/g,' ')}
+function makeFrom(title){const all=[...NEWS_VN,...NEWS_QT];const n=all.find(x=>x.title===title);if(!n)return;document.getElementById('newsInput').value=n.title+'. '+n.sum;switchTab('tao',document.querySelectorAll('.bottom button')[2]);make3();}
+function make3(){
+ const raw=document.getElementById('newsInput').value.trim();
+ const topic=document.getElementById('topicInput').value.trim()||'Tin Pi';
+ const plat=document.getElementById('platformSelect').value;
+ if(!raw){alert('Dán tin vô ô 2 trước đã!');return;}
+ const first=clean(raw).split('.')[0];
+ const short=clean(raw).slice(0,220);
+ document.getElementById('mau1').innerText=`📰 ${topic} | TIN MỚI\n\n${first}.\n\n${short}...\n\nNguồn: PiViet\n#PiNetwork #PiViet #${topic.replace(/\s/g,'')} #PioneerViet`;
+ document.getElementById('mau2').innerText=`🥹 Đọc tin này xong thấy tự hào ghê...\n\n${first}.\n\nMình tin Pioneer Việt mình không bỏ cuộc. Ai còn đào Pi mỗi ngày, comment “CÒN ĐÂY” cho mình biết với 👇\n\n#PiNetwork #PiViet #PioneerViet`;
+ document.getElementById('mau3').innerText=`🤔 ${topic} — Bạn nghĩ sao?\n\n${first}.\n\nTheo bạn tin này tốt hay xấu cho Pioneer?\nA. Rất tốt, Pi sắp bay\nB. Cứ bình tĩnh chờ tiếp\nC. Mình chưa hiểu, giải thích giúp\n\nComment A / B / C xuống dưới 👇\n\nXem thêm tại PiViet — đăng lại lên ${plat} nhé!`;
+ try{localStorage.setItem('piviet_free',JSON.stringify({news:raw,topic:topic,m1:document.getElementById('mau1').innerText,m2:document.getElementById('mau2').innerText,m3:document.getElementById('mau3').innerText}))}catch(e){}
+ showToast('Đã viết 3 bài!');
 }
-function copyOne(id){ var t=document.getElementById(id).textContent; if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ alert('Đã copy!'); }); }
-document.getElementById('btnWrite').addEventListener('click', vietBaiNgay);
-document.getElementById('imgInput').addEventListener('change', function(e){ var f=e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ var img=document.getElementById('previewImg'); img.src=r.result; img.style.display='block'; }; r.readAsDataURL(f); });
-document.getElementById('btnVideo').addEventListener('click', function(){ var link=document.getElementById('videoLink').value.trim(); if(!link){ alert('Dán link clip vô trước nha'); return; } document.getElementById('videoBox').innerHTML='<p>Link clip:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; });
+function copyMau(id){const t=document.getElementById(id).innerText;if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép!'));else showToast('Đã sao chép!')}
+function showToast(m){const t=document.getElementById('toast');t.innerText=m||'Đã sao chép!';t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
+function showImg(e){const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=document.getElementById('imgPreview');img.src=url;img.style.display='block';}
+function showClip(){const link=document.getElementById('clipLink').value.trim();if(!link){alert('Dán link TikTok / YouTube đã!');return;}let embed='';const yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/);if(yt)embed=`<iframe height="220" src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;else embed=`<p>Mở link này trong app TikTok / YouTube:<br><a href="${link}" target="_blank">${link}</a></p>`;document.getElementById('clipBox').innerHTML=embed;}
+try{const d=JSON.parse(localStorage.getItem('piviet_free')||'null');if(d){document.getElementById('newsInput').value=d.news||'';document.getElementById('topicInput').value=d.topic||'';if(d.m1)document.getElementById('mau1').innerText=d.m1;if(d.m2)document.getElementById('mau2').innerText=d.m2;if(d.m3)document.getElementById('mau3').innerText=d.m3;}}catch(e){}
 </script></body></html>

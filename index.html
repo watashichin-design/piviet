@@ -1,6 +1,29 @@
 <!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PiViet - Bản Free</title>
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com; img-src 'self' https: data:; frame-ancestors 'self' https://*.pinet.com https://*.minepi.com;">
+<script src="https://sdk.minepi.com/pi-sdk.js">
+// ---- Pi Auth (App Studio) ----
+let piSessionToken = null; // in-memory only, never localStorage
+let piUser = null; // only identity returned by App Studio is trusted
+const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
+function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+async function loginWithPi(){
+  const btn=document.getElementById('piLoginBtn'); const st=document.getElementById('piStatus');
+  try{
+    if(!window.Pi){ st.innerText='Mở trong Pi Browser để dùng Pi Auth.'; return; }
+    await Pi.init({ version: "2.0" });
+    const auth = await Pi.authenticate(["username"], onIncompletePaymentFound);
+    // Never trust auth.user.uid / username from browser. Exchange accessToken only.
+    const res = await fetch(APPSTUDIO_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ accessToken: auth.accessToken }) });
+    if(!res.ok) throw new Error("App Studio login trả về "+res.status);
+    const data = await res.json();
+    piSessionToken = data.sessionToken;
+    piUser = data.user; // {uid, username} - only trusted identity
+    if(btn) btn.innerText = "● " + piUser.username;
+    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
+  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
+}
+</script>
 <style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
 .top{position:sticky;top:0;z-index:10;background:#0d0318;border-bottom:1px solid #2a1450;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .logo{width:44px;height:44px;background:#6a1fa2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ffd700;font-weight:900}
@@ -9,8 +32,10 @@
 .card{background:#fff;color:#222;border-radius:16px;margin:12px 14px;padding:16px}
 .card.dark{background:#1e0f36;color:#fff;border:1px solid #2a1450}
 .card h3{margin:0 0 8px}.tag{display:inline-block;background:#ffd700;color:#3b0a5e;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px}
-.time{color:#a78bfa;font-size:12px}.newsimg{width:100%;height:170px;object-fit:cover;border-radius:12px;margin:8px 0}
+.time{color:#a78bfa;font-size:12px}.card.dark .time{color:#a78bfa}
+.newsimg{width:100%;height:170px;object-fit:cover;border-radius:12px;margin:8px 0}
 input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;border:1px solid #ddd;background:#fff;color:#222;font-size:15px}
+.dark input,.dark textarea,.dark select{background:#0d0318;color:#fff;border-color:#3a1e6a}
 .btn{width:100%;background:#6a1fa2;color:#fff;border:0;padding:13px;border-radius:12px;font-weight:800;cursor:pointer;margin-top:6px;font-size:15px}
 .btn-green{background:#22c55e;color:#0d0318}.btn-copy{background:#e9f9ee;color:#166534;border:1px solid #bbf7d0;padding:10px;border-radius:12px;font-weight:800;cursor:pointer;width:100%;margin-top:8px}
 .hidden{display:none}.preview-img{width:100%;border-radius:12px;margin-top:8px;display:none}
@@ -19,147 +44,98 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;bo
 .bottom button{background:none;border:0;color:#a78bfa;cursor:pointer;font-size:12px}.bottom button.active{color:#fff}.bottom span{font-size:22px;display:block}
 .toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#ffd700;color:#3b0a5e;padding:10px 18px;border-radius:20px;font-weight:800;display:none;z-index:99}
 iframe{width:100%;border:0;border-radius:12px}
-#piLoginBtn,#piLoginBtn2{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,215,0,.4);display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.dot{width:16px!important;height:16px!important;border-radius:50%!important;display:inline-block!important;flex:none;background:#ef4444;border:2px solid #000;box-shadow:0 0 10px #ef4444}
-.dot.green{background:#22c55e!important;box-shadow:0 0 12px #22c55e;animation:blink 1.2s infinite}
-.dot.red{background:#ef4444!important;box-shadow:0 0 10px #ef4444}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
-.top button span{display:inline-block!important}
-#piLoginBtn,#piLoginBtn2{line-height:1}
-#verBadge{font-size:11px;color:#ffd700;text-align:center;padding:2px}
 </style></head><body>
-<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px"><span class="dot red" id="dot1"></span><span id="piLoginText">Kết nối Pi</span></button></div>
-<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px"><span class="dot red" id="dot2"></span><span id="piLoginText2">Kết nối Pi — bấm để đăng nhập</span></button>
-
-<div id="verBadge">✅ Bản v3 — Đèn xanh / đỏ — Bấm 1 đăng nhập, bấm 2 ngắt</div>
-<div id="piStatus" style="padding:6px 14px;font-size:12px;color:#c9a8ff;background:#0d0318;text-align:center">Chưa đăng nhập Pi</div>
+<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" onclick="loginWithPi()" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">● Đăng nhập Pi</button></div>
+<div id="piStatus" style="padding:8px 14px;font-size:12px;color:#c9a8ff;background:#0d0318">Chưa đăng nhập Pi — bấm Đăng nhập Pi để xác thực.</div>
 
 <div id="tab-vn">
-<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span></div>
+<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span><p style="color:#d8c8ff;font-size:13px">Bản free — giá live sẽ gắn sau, không cần trả Pi cho App Studio.</p></div>
 <div style="padding:0 14px"><h3>📰 Mới nhất</h3></div><div id="listVN"></div>
 </div>
+
 <div id="tab-qt" class="hidden"><div style="padding:6px 14px"><h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span></h3></div><div id="listQT"></div></div>
+
 <div id="tab-tao" class="hidden">
 <div class="card"><h3>2. Dán Tin Quốc Tế Vô Đây</h3>
 <textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây... Ví dụ: PiDex will launch on Mainnet Q1 2027..."></textarea>
 <input id="topicInput" placeholder="Chủ đề — vd: PiDex, Giá Pi, Ecosystem">
 <select id="platformSelect"><option>TikTok</option><option>Facebook</option><option>YouTube</option></select>
-<button class="btn" id="make3Btn" type="button">✨ Viết 3 Bài Từ Tin Này</button>
+<button class="btn" onclick="make3()">✨ Viết 3 Bài Từ Tin Này</button>
 <p style="font-size:12px;color:#666">Dán tin rồi bấm nút tím — 3 mẫu dưới sẽ tự đầy chữ.</p></div>
+
 <div class="card"><h3>3. Thêm Hình / Clip</h3>
 <label style="font-size:13px">Chọn hình từ điện thoại:</label>
-<input type="file" id="imgInput" accept="image/*">
+<input type="file" id="imgInput" accept="image/*" onchange="showImg(event)">
 <img id="imgPreview" class="preview-img">
 <input id="clipLink" placeholder="Dán link TikTok / YouTube vô đây...">
-<button class="btn btn-green" id="showClipBtn" type="button">▶ Hiện Clip</button>
+<button class="btn btn-green" onclick="showClip()">▶ Hiện Clip</button>
 <div id="clipBox" style="margin-top:8px"></div></div>
-<div class="card"><h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span></h3><div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div><button class="btn-copy" data-copy="mau1" type="button">📋 Copy Mẫu 1</button></div>
-<div class="card"><h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span></h3><div id="mau2" class="mau">...</div><button class="btn-copy" data-copy="mau2" type="button">📋 Copy Mẫu 2</button></div>
-<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span></h3><div id="mau3" class="mau">...</div><button class="btn-copy" data-copy="mau3" type="button">📋 Copy Mẫu 3</button></div>
+
+<div class="card"><h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span></h3><div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div><button class="btn-copy" onclick="copyMau('mau1')">📋 Copy Mẫu 1</button></div>
+<div class="card"><h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span></h3><div id="mau2" class="mau">...</div><button class="btn-copy" onclick="copyMau('mau2')">📋 Copy Mẫu 2</button></div>
+<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span></h3><div id="mau3" class="mau">...</div><button class="btn-copy" onclick="copyMau('mau3')">📋 Copy Mẫu 3</button></div>
 <p style="text-align:center;color:#a78bfa;font-size:12px;padding:0 14px">Bản nháp tự lưu — tắt app mở lại vẫn còn.</p>
 </div>
+
 <div class="bottom">
-<button type="button" data-tab="vn" class="active"><span>📰</span>Tin Pi Việt Nam</button>
-<button type="button" data-tab="qt"><span>🌍</span>Tin Quốc Tế</button>
-<button type="button" data-tab="tao"><span>✎</span>Tạo Bài Đăng</button>
+<button class="active" onclick="switchTab('vn',this)"><span>📰</span>Tin Pi Việt Nam</button>
+<button onclick="switchTab('qt',this)"><span>🌍</span>Tin Quốc Tế</button>
+<button onclick="switchTab('tao',this)"><span>✎</span>Tạo Bài Đăng</button>
 </div><div class="toast" id="toast">Đã sao chép!</div>
 <script>
-var piSessionToken=null, piUser=null;
-var APPSTUDIO_LOGIN="https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
-function onIncompletePaymentFound(p){ console.log("incomplete",p); }
-function setStatus(t){ var s=document.getElementById('piStatus'); if(s) s.innerText=t; }
-function setDebug(t){ /* production: no debug output */ }
-
-function updateConnectUI(){
-  var logged = !!(typeof piUser !== 'undefined' && piUser && piUser.username);
-  var d1=document.getElementById('dot1'); if(d1) d1.className='dot '+(logged?'green':'red');
-  var d2=document.getElementById('dot2'); if(d2) d2.className='dot '+(logged?'green':'red');
-  var t1=document.getElementById('piLoginText'); if(t1) t1.innerText = logged ? piUser.username : 'Kết nối Pi';
-  var t2=document.getElementById('piLoginText2'); if(t2) t2.innerText = logged ? 'Đã kết nối: '+piUser.username+' — bấm để ngắt' : 'Kết nối Pi — bấm để đăng nhập';
-  var b1=document.getElementById('piLoginBtn'); if(b1) b1.style.background = '#ffd700';
-  var b2=document.getElementById('piLoginBtn2'); if(b2) b2.style.background = '#ffd700';
-}
-function disconnectPi(){
-  piUser=null; piSessionToken=null;
-  try{ localStorage.removeItem('piviet_session'); }catch(e){}
-  window.__piviet_logging_in=false;
-  updateConnectUI();
-  setStatus('Đã ngắt kết nối — đèn đỏ. Bấm lại để đăng nhập.');
-  showToast('Đã ngắt kết nối Pi');
-}
-function toggleConnect(){
-  if(typeof piUser !== 'undefined' && piUser && piUser.username){ disconnectPi(); return; }
-  loginWithPi();
-}
-function loginWithPi(){
-  if(window.__piviet_logging_in){ setStatus("Đang đăng nhập rồi, đợi 1 chút..."); return; }
-  window.__piviet_logging_in = true;
-  // Tự mở chốt sau 20 giây để không bị kẹt mãi ở "Đang đăng nhập rồi"
-  setTimeout(function(){ if(window.__piviet_logging_in){ window.__piviet_logging_in=false; setStatus("Pi không trả lời, bấm lại thử."); } }, 20000);
-  setStatus("Đang đăng nhập Pi...");
-  setDebug("Đã bấm nút lúc " + new Date().toLocaleTimeString() + " — nếu dòng này đổi là nút đã chạy.");
-  if(!window.Pi){ setStatus("Mở bằng Pi Browser để đăng nhập Pi."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); window.__piviet_logging_in=false; return; }
-  // Pi.init là hàm SYNC, KHÔNG được .then() lên nó - .then() sẽ crash
-  try{ Pi.init({ version: "2.0" }); }catch(e){ /* Pi.init có thể đã gọi rồi, cứ tiếp tục */ }
-  setStatus("Đang mở bảng đăng nhập Pi...");
-  Pi.authenticate(["username"], onIncompletePaymentFound).then(function(auth){
-    setStatus("Đang xác thực với Pi...");
-    return fetch(APPSTUDIO_LOGIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})}).then(function(res){ if(!res.ok) throw new Error("App Studio trả về "+res.status); return res.json(); });
-  }).then(function(data){
-    piSessionToken=data.sessionToken; piUser=data.user;
-    updateConnectUI();
-    setStatus("Đã đăng nhập: "+piUser.username);
-    setDebug("Đăng nhập OK: "+piUser.username);
-    window.__piviet_logging_in=false;
-  }).catch(function(e){
-    window.__piviet_logging_in=false;
-    setStatus("Đăng nhập chưa được, bấm lại thử.");
-    setDebug("Lỗi chi tiết: "+(e&&e.message?e.message:e)+" | Pi có sẵn: "+(!!window.Pi));
-  });
-}
-function switchTab(id,btn){ document.querySelectorAll('.bottom button').forEach(function(b){b.classList.remove('active')}); if(btn) btn.classList.add('active'); ['vn','qt','tao'].forEach(function(t){ document.getElementById('tab-'+t).classList.toggle('hidden',t!==id); }); window.scrollTo(0,0); }
-var NEWS_VN=[
+const NEWS_VN=[
 {cat:'Pi Việt Nam',title:'Pioneer Việt Nam trao đổi hàng bằng Pi ngày càng sôi động',sum:'Cộng đồng Pioneer Việt đang chia sẻ nhiều cách trao đổi hàng hoá, dịch vụ bằng Pi trong đời sống hàng ngày.',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800',time:'2 giờ trước'},
 {cat:'Ecosystem Summit',title:'Ecosystem Summit: các app Pi trình diễn tính năng mới',sum:'Các đội xây app trong hệ sinh thái Pi giới thiệu bản cập nhật mới, tập trung vào trải nghiệm mobile và thanh toán.',img:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800',time:'5 giờ trước'},
-{cat:'PiDex',title:'PiDex là gì? Chợ giao dịch trong hệ sinh thái Pi',sum:'Giải thích đơn giản PiDex cho người mới: giao dịch, thanh khoản và cách Pioneer cần hiểu trước khi tham gia.',img:'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800',time:'1 ngày trước'}];
-var NEWS_QT=[
+{cat:'PiDex',title:'PiDex là gì? Chợ giao dịch trong hệ sinh thái Pi',sum:'Giải thích đơn giản PiDex cho người mới: giao dịch, thanh khoản và cách Pioneer cần hiểu trước khi tham gia.',img:'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800',time:'1 ngày trước'},
+];
+const NEWS_QT=[
 {cat:'Quốc tế',title:'Pi Network mở rộng cộng đồng quốc tế: Pioneer ở nhiều nước tham gia',sum:'Bản dịch tiếng Việt: Cộng đồng Pi quốc tế tiếp tục lớn mạnh, nhiều sự kiện trực tuyến được tổ chức cho Pioneer.',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',time:'3 giờ trước'},
-{cat:'Quốc tế',title:'Tin quốc tế: các app Pi hướng tới người dùng phổ thông',sum:'Bản dịch tiếng Việt: Xu hướng chung là làm app dễ dùng hơn, nhanh hơn, ít bước hơn cho người mới.',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',time:'6 giờ trước'}];
-function card(n){ return '<div class="card"><span class="tag">'+n.cat+'</span> <span class="time">'+n.time+'</span><h3 style="margin-top:8px">'+n.title+'</h3><img class="newsimg" src="'+n.img+'"><p style="color:#444">'+n.sum+'</p><button class="btn" data-make="'+n.title.replace(/"/g,'')+'" type="button">✎ Tạo từ tin này</button></div>'; }
+{cat:'Quốc tế',title:'Tin quốc tế: các app Pi hướng tới người dùng phổ thông',sum:'Bản dịch tiếng Việt: Xu hướng chung là làm app dễ dùng hơn, nhanh hơn, ít bước hơn cho người mới.',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',time:'6 giờ trước'},
+];
+function card(n){return `<div class="card"><span class="tag">${n.cat}</span> <span class="time">${n.time}</span><h3 style="margin-top:8px">${n.title}</h3><img class="newsimg" src="${n.img}"><p style="color:#444">${n.sum}</p><button class="btn" onclick="makeFrom('${n.title.replace(/'/g,'')}')">✎ Tạo từ tin này</button></div>`}
 document.getElementById('listVN').innerHTML=NEWS_VN.map(card).join('');
 document.getElementById('listQT').innerHTML=NEWS_QT.map(card).join('');
-function clean(s){ return s.trim().replace(/\s+/g,' '); }
+function switchTab(id,btn){document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');['vn','qt','tao'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==id));window.scrollTo(0,0);}
+function clean(s){return s.trim().replace(/\s+/g,' ')}
+function makeFrom(title){const all=[...NEWS_VN,...NEWS_QT];const n=all.find(x=>x.title===title);if(!n)return;document.getElementById('newsInput').value=n.title+'. '+n.sum;switchTab('tao',document.querySelectorAll('.bottom button')[2]);make3();}
 function make3(){
-  var raw=document.getElementById('newsInput').value.trim();
-  var topic=document.getElementById('topicInput').value.trim()||'Tin Pi';
-  var plat=document.getElementById('platformSelect').value;
-  if(!raw){ setStatus("Dán tin vô ô 2 trước đã!"); return; }
-  var first=clean(raw).split('.')[0];
-  var short=clean(raw).slice(0,220);
-  document.getElementById('mau1').innerText="📰 "+topic+" | TIN MỚI\n\n"+first+".\n\n"+short+"...\n\nNguồn: PiViet\n#PiNetwork #PiViet #PioneerViet";
-  document.getElementById('mau2').innerText="🥹 Đọc tin này xong thấy tự hào ghê...\n\n"+first+".\n\nMình tin Pioneer Việt mình không bỏ cuộc. Ai còn đào Pi mỗi ngày, comment “CÒN ĐÂY” cho mình biết với 👇\n\n#PiNetwork #PiViet #PioneerViet";
-  document.getElementById('mau3').innerText="🤔 "+topic+" — Bạn nghĩ sao?\n\n"+first+".\n\nTheo bạn tin này tốt hay xấu cho Pioneer?\nA. Rất tốt, Pi sắp bay\nB. Cứ bình tĩnh chờ tiếp\nC. Mình chưa hiểu, giải thích giúp\n\nComment A / B / C xuống dưới 👇\n\nXem thêm tại PiViet — đăng lại lên "+plat+" nhé!";
-  try{ localStorage.setItem('piviet_free', JSON.stringify({news:raw,topic:topic,m1:document.getElementById('mau1').innerText,m2:document.getElementById('mau2').innerText,m3:document.getElementById('mau3').innerText})); }catch(e){}
-  showToast('Đã viết 3 bài!');
+ const raw=document.getElementById('newsInput').value.trim();
+ const topic=document.getElementById('topicInput').value.trim()||'Tin Pi';
+ const plat=document.getElementById('platformSelect').value;
+ if(!raw){alert('Dán tin vô ô 2 trước đã!');return;}
+ const first=clean(raw).split('.')[0];
+ const short=clean(raw).slice(0,220);
+ document.getElementById('mau1').innerText=`📰 ${topic} | TIN MỚI\n\n${first}.\n\n${short}...\n\nNguồn: PiViet\n#PiNetwork #PiViet #${topic.replace(/\s/g,'')} #PioneerViet`;
+ document.getElementById('mau2').innerText=`🥹 Đọc tin này xong thấy tự hào ghê...\n\n${first}.\n\nMình tin Pioneer Việt mình không bỏ cuộc. Ai còn đào Pi mỗi ngày, comment “CÒN ĐÂY” cho mình biết với 👇\n\n#PiNetwork #PiViet #PioneerViet`;
+ document.getElementById('mau3').innerText=`🤔 ${topic} — Bạn nghĩ sao?\n\n${first}.\n\nTheo bạn tin này tốt hay xấu cho Pioneer?\nA. Rất tốt, Pi sắp bay\nB. Cứ bình tĩnh chờ tiếp\nC. Mình chưa hiểu, giải thích giúp\n\nComment A / B / C xuống dưới 👇\n\nXem thêm tại PiViet — đăng lại lên ${plat} nhé!`;
+ try{localStorage.setItem('piviet_free',JSON.stringify({news:raw,topic:topic,m1:document.getElementById('mau1').innerText,m2:document.getElementById('mau2').innerText,m3:document.getElementById('mau3').innerText}))}catch(e){}
+ showToast('Đã viết 3 bài!');
 }
-function copyMau(id){ var t=document.getElementById(id).innerText; if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){showToast('Đã sao chép!')}); else showToast('Đã sao chép!'); }
-function showToast(m){ var t=document.getElementById('toast'); t.innerText=m||'Đã sao chép!'; t.style.display='block'; setTimeout(function(){t.style.display='none'},2000); }
-function showImg(e){ var f=e.target.files[0]; if(!f) return; var url=URL.createObjectURL(f); var img=document.getElementById('imgPreview'); img.src=url; img.style.display='block'; }
-function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var embed=''; var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); if(yt) embed='<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>'; else embed='<p>Mở link này trong app TikTok / YouTube:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; document.getElementById('clipBox').innerHTML=embed; }
-// Bind all buttons by code, no inline onclick, click + touchstart for Pi Browser WebView
-function bindAll(){
-  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',toggleConnect); }
-  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',toggleConnect); }
-  updateConnectUI();
-  var m=document.getElementById('make3Btn'); if(m) m.addEventListener('click',make3);
-  var sc=document.getElementById('showClipBtn'); if(sc) sc.addEventListener('click',showClip);
-  var ii=document.getElementById('imgInput'); if(ii) ii.addEventListener('change',showImg);
-  document.querySelectorAll('.bottom button').forEach(function(b){ b.addEventListener('click',function(){ switchTab(b.getAttribute('data-tab'),b); }); });
-  document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ copyMau(b.getAttribute('data-copy')); }); });
-  document.querySelectorAll('[data-make]').forEach(function(b){ b.addEventListener('click',function(){ var all=NEWS_VN.concat(NEWS_QT); var n=all.find(function(x){return x.title===b.getAttribute('data-make')}); if(!n) return; document.getElementById('newsInput').value=n.title+'. '+n.sum; var tb=document.querySelectorAll('.bottom button')[2]; switchTab('tao',tb); make3(); }); });
-  setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); setTimeout(function(){ setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); }, 800);
-  setStatus("Chưa đăng nhập Pi");
+function copyMau(id){const t=document.getElementById(id).innerText;if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép!'));else showToast('Đã sao chép!')}
+function showToast(m){const t=document.getElementById('toast');t.innerText=m||'Đã sao chép!';t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
+function showImg(e){const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=document.getElementById('imgPreview');img.src=url;img.style.display='block';}
+function showClip(){const link=document.getElementById('clipLink').value.trim();if(!link){alert('Dán link TikTok / YouTube đã!');return;}let embed='';const yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/);if(yt)embed=`<iframe height="220" src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;else embed=`<p>Mở link này trong app TikTok / YouTube:<br><a href="${link}" target="_blank">${link}</a></p>`;document.getElementById('clipBox').innerHTML=embed;}
+try{const d=JSON.parse(localStorage.getItem('piviet_free')||'null');if(d){document.getElementById('newsInput').value=d.news||'';document.getElementById('topicInput').value=d.topic||'';if(d.m1)document.getElementById('mau1').innerText=d.m1;if(d.m2)document.getElementById('mau2').innerText=d.m2;if(d.m3)document.getElementById('mau3').innerText=d.m3;}}catch(e){}
+
+// ---- Pi Auth (App Studio) ----
+let piSessionToken = null; // in-memory only, never localStorage
+let piUser = null; // only identity returned by App Studio is trusted
+const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
+function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+async function loginWithPi(){
+  const btn=document.getElementById('piLoginBtn'); const st=document.getElementById('piStatus');
+  try{
+    if(!window.Pi){ st.innerText='Mở trong Pi Browser để dùng Pi Auth.'; return; }
+    await Pi.init({ version: "2.0" });
+    const auth = await Pi.authenticate(["username"], onIncompletePaymentFound);
+    // Never trust auth.user.uid / username from browser. Exchange accessToken only.
+    const res = await fetch(APPSTUDIO_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ accessToken: auth.accessToken }) });
+    if(!res.ok) throw new Error("App Studio login trả về "+res.status);
+    const data = await res.json();
+    piSessionToken = data.sessionToken;
+    piUser = data.user; // {uid, username} - only trusted identity
+    if(btn) btn.innerText = "● " + piUser.username;
+    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
+  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
 }
-bindAll();
-try{ var d=JSON.parse(localStorage.getItem('piviet_free')||'null'); if(d){ document.getElementById('newsInput').value=d.news||''; document.getElementById('topicInput').value=d.topic||''; if(d.m1) document.getElementById('mau1').innerText=d.m1; if(d.m2) document.getElementById('mau2').innerText=d.m2; if(d.m3) document.getElementById('mau3').innerText=d.m3; } }catch(e){}
 </script></body></html>

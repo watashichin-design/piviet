@@ -7,10 +7,12 @@ let piSessionToken = null; // in-memory only, never localStorage
 let piUser = null; // only identity returned by App Studio is trusted
 const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+function checkPiSdk(){ const d=document.getElementById('piDebug'); if(!d) return; if(window.Pi) d.innerText="Pi SDK: ĐÃ TẢI ĐƯỢC — bạn đang mở bằng Pi Browser, bấm nút đăng nhập được."; else d.innerText="Pi SDK: CHƯA TẢI ĐƯỢC — bạn đang mở bằng Chrome / trình duyệt thường, nút Pi sẽ không vô. Hãy mở bằng Pi Browser."; }
+window.addEventListener('load', ()=>{ setTimeout(checkPiSdk, 800); });
 async function loginWithPi(){
   const btn=document.getElementById('piLoginBtn'); const btn2=document.getElementById('piLoginBtn2'); const st=document.getElementById('piStatus');
   // Feedback ngay lap tuc - neu khong thay dong nay doi, nghia la nut chua duoc bam / file cu chua duoc load
-  if(st) st.innerText = "Đã bấm nút đăng nhập... đang kiểm tra Pi Browser...";
+  if(st) st.innerText = "Bước 1/3: Đã bấm nút... đang gọi Pi.init...";
   alert("Đã bấm nút Đăng nhập Pi. Đang kiểm tra...");
   try{
     if(!window.Pi){
@@ -20,7 +22,7 @@ async function loginWithPi(){
     }
     await Pi.init({ version: "2.0" });
     const auth = await Pi.authenticate(["username"], onIncompletePaymentFound);
-    if(st) st.innerText = "Đã lấy được Pi Auth, đang đổi lấy session với App Studio...";
+    if(st) st.innerText = "Bước 2/3: Pi đã đồng ý, đang đổi lấy session với App Studio...";
     const res = await fetch(APPSTUDIO_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ accessToken: auth.accessToken }) });
     if(!res.ok) throw new Error("App Studio login trả về "+res.status);
     const data = await res.json();
@@ -28,9 +30,9 @@ async function loginWithPi(){
     piUser = data.user;
     if(btn) btn.innerText = "● " + piUser.username;
     if(btn2) btn2.innerText = "● Đã đăng nhập: " + piUser.username;
-    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
+    if(st) st.innerText = "Bước 3/3: Đã đăng nhập Pi: " + piUser.username + " — xong, quay lại App Studio bấm Check Again.";
     alert("Đăng nhập Pi thành công: " + piUser.username);
-  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; alert("Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e)); }
+  }catch(e){ const dbg=document.getElementById("piDebug"); if(dbg) dbg.innerText="Lỗi chi tiết: " + (e && e.message ? e.message : e) + " | Pi có sẵn: " + (!!window.Pi); if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; alert("Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e)); }
 }
 </script>
 <style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
@@ -55,7 +57,7 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;bo
 iframe{width:100%;border:0;border-radius:12px}
 </style></head><body>
 <div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" onclick="loginWithPi()" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">● Đăng nhập Pi</button></div>
-<button id="piLoginBtn2" onclick="loginWithPi()" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px">● Đăng nhập bằng Pi — bấm vào đây</button><div id="piStatus" style="padding:8px 14px;font-size:12px;color:#c9a8ff;background:#0d0318">Chưa đăng nhập Pi — bấm Đăng nhập Pi để xác thực.</div>
+<button id="piLoginBtn2" onclick="loginWithPi()" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px">● Đăng nhập bằng Pi — bấm vào đây</button><div id="piDebug" style="padding:4px 14px;font-size:11px;color:#ffd700;background:#0d0318">Đang kiểm tra Pi SDK...</div><div id="piStatus" style="padding:8px 14px;font-size:12px;color:#c9a8ff;background:#0d0318">Chưa đăng nhập Pi — bấm Đăng nhập Pi để xác thực.</div>
 
 <div id="tab-vn">
 <div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span><p style="color:#d8c8ff;font-size:13px">Bản free — giá live sẽ gắn sau, không cần trả Pi cho App Studio.</p></div>
@@ -131,6 +133,8 @@ let piSessionToken = null; // in-memory only, never localStorage
 let piUser = null; // only identity returned by App Studio is trusted
 const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+function checkPiSdk(){ const d=document.getElementById('piDebug'); if(!d) return; if(window.Pi) d.innerText="Pi SDK: ĐÃ TẢI ĐƯỢC — bạn đang mở bằng Pi Browser, bấm nút đăng nhập được."; else d.innerText="Pi SDK: CHƯA TẢI ĐƯỢC — bạn đang mở bằng Chrome / trình duyệt thường, nút Pi sẽ không vô. Hãy mở bằng Pi Browser."; }
+window.addEventListener('load', ()=>{ setTimeout(checkPiSdk, 800); });
 async function loginWithPi(){
   const btn=document.getElementById('piLoginBtn'); const st=document.getElementById('piStatus');
   try{
@@ -144,7 +148,7 @@ async function loginWithPi(){
     piSessionToken = data.sessionToken;
     piUser = data.user; // {uid, username} - only trusted identity
     if(btn) btn.innerText = "● " + piUser.username;
-    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
-  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
+    if(st) st.innerText = "Bước 3/3: Đã đăng nhập Pi: " + piUser.username + " — xong, quay lại App Studio bấm Check Again.";
+  }catch(e){ const dbg=document.getElementById("piDebug"); if(dbg) dbg.innerText="Lỗi chi tiết: " + (e && e.message ? e.message : e) + " | Pi có sẵn: " + (!!window.Pi); if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
 }
 </script></body></html>

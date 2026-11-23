@@ -19,15 +19,18 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;bo
 .bottom button{background:none;border:0;color:#a78bfa;cursor:pointer;font-size:12px}.bottom button.active{color:#fff}.bottom span{font-size:22px;display:block}
 .toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#ffd700;color:#3b0a5e;padding:10px 18px;border-radius:20px;font-weight:800;display:none;z-index:99}
 iframe{width:100%;border:0;border-radius:12px}
-#piLoginBtn,#piLoginBtn2{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,215,0,.4)}
+#piLoginBtn,#piLoginBtn2{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,215,0,.4);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:none;background:#ef4444;box-shadow:0 0 8px #ef4444}
+.dot.green{background:#22c55e;box-shadow:0 0 10px #22c55e}
+.dot.red{background:#ef4444;box-shadow:0 0 8px #ef4444}
 </style></head><body>
-<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">● Đăng nhập Pi</button></div>
-<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px">● Đăng nhập bằng Pi — bấm vào đây</button>
-<div id="piDebug" style="padding:4px 14px;font-size:11px;color:#ffd700;background:#0d0318">Đang tải...</div>
-<div id="piStatus" style="padding:8px 14px;font-size:12px;color:#c9a8ff;background:#0d0318">Chưa đăng nhập Pi — bấm Đăng nhập Pi để xác thực.</div>
+<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px"><span class="dot red" id="dot1"></span><span id="piLoginText">Kết nối Pi</span></button></div>
+<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px"><span class="dot red" id="dot2"></span><span id="piLoginText2">Kết nối Pi — bấm để đăng nhập</span></button>
+
+<div id="piStatus" style="padding:6px 14px;font-size:12px;color:#c9a8ff;background:#0d0318;text-align:center">Chưa đăng nhập Pi</div>
 
 <div id="tab-vn">
-<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span><p style="color:#d8c8ff;font-size:13px">Bản free — giá live sẽ gắn sau, không cần trả Pi cho App Studio.</p></div>
+<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span></div>
 <div style="padding:0 14px"><h3>📰 Mới nhất</h3></div><div id="listVN"></div>
 </div>
 <div id="tab-qt" class="hidden"><div style="padding:6px 14px"><h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span></h3></div><div id="listQT"></div></div>
@@ -60,29 +63,52 @@ var piSessionToken=null, piUser=null;
 var APPSTUDIO_LOGIN="https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 function onIncompletePaymentFound(p){ console.log("incomplete",p); }
 function setStatus(t){ var s=document.getElementById('piStatus'); if(s) s.innerText=t; }
-function setDebug(t){ var d=document.getElementById('piDebug'); if(d) d.innerText=t; }
+function setDebug(t){ /* production: no debug output */ }
+
+function updateConnectUI(){
+  var logged = !!(typeof piUser !== 'undefined' && piUser && piUser.username);
+  var d1=document.getElementById('dot1'); if(d1) d1.className='dot '+(logged?'green':'red');
+  var d2=document.getElementById('dot2'); if(d2) d2.className='dot '+(logged?'green':'red');
+  var t1=document.getElementById('piLoginText'); if(t1) t1.innerText = logged ? piUser.username : 'Kết nối Pi';
+  var t2=document.getElementById('piLoginText2'); if(t2) t2.innerText = logged ? 'Đã kết nối: '+piUser.username+' — bấm để ngắt' : 'Kết nối Pi — bấm để đăng nhập';
+  var b1=document.getElementById('piLoginBtn'); if(b1) b1.style.background = logged ? '#22c55e' : '#ffd700';
+  var b2=document.getElementById('piLoginBtn2'); if(b2) b2.style.background = logged ? '#22c55e' : '#ffd700';
+}
+function disconnectPi(){
+  piUser=null; piSessionToken=null;
+  try{ localStorage.removeItem('piviet_session'); }catch(e){}
+  window.__piviet_logging_in=false;
+  updateConnectUI();
+  setStatus('Đã ngắt kết nối — đèn đỏ. Bấm lại để đăng nhập.');
+  showToast('Đã ngắt kết nối Pi');
+}
+function toggleConnect(){
+  if(typeof piUser !== 'undefined' && piUser && piUser.username){ disconnectPi(); return; }
+  loginWithPi();
+}
 function loginWithPi(){
   if(window.__piviet_logging_in){ setStatus("Đang đăng nhập rồi, đợi 1 chút..."); return; }
   window.__piviet_logging_in = true;
-  setStatus("Bước 1/3: Đã bấm nút — đang gọi Pi...");
+  // Tự mở chốt sau 20 giây để không bị kẹt mãi ở "Đang đăng nhập rồi"
+  setTimeout(function(){ if(window.__piviet_logging_in){ window.__piviet_logging_in=false; setStatus("Pi không trả lời, bấm lại thử."); } }, 20000);
+  setStatus("Đang đăng nhập Pi...");
   setDebug("Đã bấm nút lúc " + new Date().toLocaleTimeString() + " — nếu dòng này đổi là nút đã chạy.");
-  if(!window.Pi){ setStatus("Bạn đang mở bằng Chrome, Pi không chạy ở đây. Mở bằng Pi Browser."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); window.__piviet_logging_in=false; return; }
+  if(!window.Pi){ setStatus("Mở bằng Pi Browser để đăng nhập Pi."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); window.__piviet_logging_in=false; return; }
   // Pi.init là hàm SYNC, KHÔNG được .then() lên nó - .then() sẽ crash
   try{ Pi.init({ version: "2.0" }); }catch(e){ /* Pi.init có thể đã gọi rồi, cứ tiếp tục */ }
-  setStatus("Bước 2/3: Pi đã sẵn sàng, đang mở bảng đăng nhập Pi...");
+  setStatus("Đang mở bảng đăng nhập Pi...");
   Pi.authenticate(["username"], onIncompletePaymentFound).then(function(auth){
-    setStatus("Bước 3/3: Pi đã đồng ý, đang đổi lấy session với App Studio...");
+    setStatus("Đang xác thực với Pi...");
     return fetch(APPSTUDIO_LOGIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})}).then(function(res){ if(!res.ok) throw new Error("App Studio trả về "+res.status); return res.json(); });
   }).then(function(data){
     piSessionToken=data.sessionToken; piUser=data.user;
-    var b1=document.getElementById('piLoginBtn'); if(b1) b1.innerText="● "+piUser.username;
-    var b2=document.getElementById('piLoginBtn2'); if(b2) b2.innerText="● Đã đăng nhập: "+piUser.username;
-    setStatus("Đã đăng nhập Pi: "+piUser.username+" — xong, quay lại App Studio bấm Check Again.");
+    updateConnectUI();
+    setStatus("Đã đăng nhập: "+piUser.username);
     setDebug("Đăng nhập OK: "+piUser.username);
     window.__piviet_logging_in=false;
   }).catch(function(e){
     window.__piviet_logging_in=false;
-    setStatus("Đăng nhập chưa được: "+(e&&e.message?e.message:e));
+    setStatus("Đăng nhập chưa được, bấm lại thử.");
     setDebug("Lỗi chi tiết: "+(e&&e.message?e.message:e)+" | Pi có sẵn: "+(!!window.Pi));
   });
 }
@@ -117,8 +143,9 @@ function showImg(e){ var f=e.target.files[0]; if(!f) return; var url=URL.createO
 function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var embed=''; var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); if(yt) embed='<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>'; else embed='<p>Mở link này trong app TikTok / YouTube:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; document.getElementById('clipBox').innerHTML=embed; }
 // Bind all buttons by code, no inline onclick, click + touchstart for Pi Browser WebView
 function bindAll(){
-  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',loginWithPi); }
-  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',loginWithPi); }
+  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',toggleConnect); }
+  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',toggleConnect); }
+  updateConnectUI();
   var m=document.getElementById('make3Btn'); if(m) m.addEventListener('click',make3);
   var sc=document.getElementById('showClipBtn'); if(sc) sc.addEventListener('click',showClip);
   var ii=document.getElementById('imgInput'); if(ii) ii.addEventListener('change',showImg);
@@ -126,7 +153,7 @@ function bindAll(){
   document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ copyMau(b.getAttribute('data-copy')); }); });
   document.querySelectorAll('[data-make]').forEach(function(b){ b.addEventListener('click',function(){ var all=NEWS_VN.concat(NEWS_QT); var n=all.find(function(x){return x.title===b.getAttribute('data-make')}); if(!n) return; document.getElementById('newsInput').value=n.title+'. '+n.sum; var tb=document.querySelectorAll('.bottom button')[2]; switchTab('tao',tb); make3(); }); });
   setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); setTimeout(function(){ setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); }, 800);
-  setStatus("JS đã chạy tới cuối file — bấm nút thử đi, dòng này sẽ đổi.");
+  setStatus("Chưa đăng nhập Pi");
 }
 bindAll();
 try{ var d=JSON.parse(localStorage.getItem('piviet_free')||'null'); if(d){ document.getElementById('newsInput').value=d.news||''; document.getElementById('topicInput').value=d.topic||''; if(d.m1) document.getElementById('mau1').innerText=d.m1; if(d.m2) document.getElementById('mau2').innerText=d.m2; if(d.m3) document.getElementById('mau3').innerText=d.m3; } }catch(e){}

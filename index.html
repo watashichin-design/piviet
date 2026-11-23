@@ -1,5 +1,29 @@
 <!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PiViet - Bản Free</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com; img-src 'self' https: data:; frame-ancestors 'self' https://*.pinet.com https://*.minepi.com;">
+<script src="https://sdk.minepi.com/pi-sdk.js">
+// ---- Pi Auth (App Studio) ----
+let piSessionToken = null; // in-memory only, never localStorage
+let piUser = null; // only identity returned by App Studio is trusted
+const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
+function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+async function loginWithPi(){
+  const btn=document.getElementById('piLoginBtn'); const st=document.getElementById('piStatus');
+  try{
+    if(!window.Pi){ st.innerText='Mở trong Pi Browser để dùng Pi Auth.'; return; }
+    await Pi.init({ version: "2.0" });
+    const auth = await Pi.authenticate(["username"], onIncompletePaymentFound);
+    // Never trust auth.user.uid / username from browser. Exchange accessToken only.
+    const res = await fetch(APPSTUDIO_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ accessToken: auth.accessToken }) });
+    if(!res.ok) throw new Error("App Studio login trả về "+res.status);
+    const data = await res.json();
+    piSessionToken = data.sessionToken;
+    piUser = data.user; // {uid, username} - only trusted identity
+    if(btn) btn.innerText = "● " + piUser.username;
+    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
+  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
+}
+</script>
 <style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
 .top{position:sticky;top:0;z-index:10;background:#0d0318;border-bottom:1px solid #2a1450;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .logo{width:44px;height:44px;background:#6a1fa2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ffd700;font-weight:900}
@@ -21,7 +45,8 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;bo
 .toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#ffd700;color:#3b0a5e;padding:10px 18px;border-radius:20px;font-weight:800;display:none;z-index:99}
 iframe{width:100%;border:0;border-radius:12px}
 </style></head><body>
-<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span></div>
+<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" onclick="loginWithPi()" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">● Đăng nhập Pi</button></div>
+<div id="piStatus" style="padding:8px 14px;font-size:12px;color:#c9a8ff;background:#0d0318">Chưa đăng nhập Pi — bấm Đăng nhập Pi để xác thực.</div>
 
 <div id="tab-vn">
 <div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span><p style="color:#d8c8ff;font-size:13px">Bản free — giá live sẽ gắn sau, không cần trả Pi cho App Studio.</p></div>
@@ -91,4 +116,26 @@ function showToast(m){const t=document.getElementById('toast');t.innerText=m||'�
 function showImg(e){const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=document.getElementById('imgPreview');img.src=url;img.style.display='block';}
 function showClip(){const link=document.getElementById('clipLink').value.trim();if(!link){alert('Dán link TikTok / YouTube đã!');return;}let embed='';const yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/);if(yt)embed=`<iframe height="220" src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;else embed=`<p>Mở link này trong app TikTok / YouTube:<br><a href="${link}" target="_blank">${link}</a></p>`;document.getElementById('clipBox').innerHTML=embed;}
 try{const d=JSON.parse(localStorage.getItem('piviet_free')||'null');if(d){document.getElementById('newsInput').value=d.news||'';document.getElementById('topicInput').value=d.topic||'';if(d.m1)document.getElementById('mau1').innerText=d.m1;if(d.m2)document.getElementById('mau2').innerText=d.m2;if(d.m3)document.getElementById('mau3').innerText=d.m3;}}catch(e){}
+
+// ---- Pi Auth (App Studio) ----
+let piSessionToken = null; // in-memory only, never localStorage
+let piUser = null; // only identity returned by App Studio is trusted
+const APPSTUDIO_LOGIN = "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
+function onIncompletePaymentFound(payment){ console.log("incomplete payment", payment); }
+async function loginWithPi(){
+  const btn=document.getElementById('piLoginBtn'); const st=document.getElementById('piStatus');
+  try{
+    if(!window.Pi){ st.innerText='Mở trong Pi Browser để dùng Pi Auth.'; return; }
+    await Pi.init({ version: "2.0" });
+    const auth = await Pi.authenticate(["username"], onIncompletePaymentFound);
+    // Never trust auth.user.uid / username from browser. Exchange accessToken only.
+    const res = await fetch(APPSTUDIO_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ accessToken: auth.accessToken }) });
+    if(!res.ok) throw new Error("App Studio login trả về "+res.status);
+    const data = await res.json();
+    piSessionToken = data.sessionToken;
+    piUser = data.user; // {uid, username} - only trusted identity
+    if(btn) btn.innerText = "● " + piUser.username;
+    if(st) st.innerText = "Đã đăng nhập Pi: " + piUser.username;
+  }catch(e){ if(st) st.innerText = "Đăng nhập Pi chưa được: " + (e && e.message ? e.message : e) + " — mở trong Pi Browser và thử lại."; }
+}
 </script></body></html>

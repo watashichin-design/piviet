@@ -285,7 +285,7 @@ function showCounts(globalCount){
   var el=document.getElementById('loginCount'); if(!el) return;
   var local=getLocalCount();
   var show = globalCount==null ? local : Math.max(globalCount, local);
-  el.innerText='👥 ' + show;
+  el.innerText='🎎 ' + show;
 }
 function loadGlobalCount(){
   // Abacus đúng định dạng: /get/<namespace>/<key> - bản cũ ghi 1 đoạn nên không gọi được

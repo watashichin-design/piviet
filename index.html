@@ -21,12 +21,10 @@
 :where(code, pre, kbd, samp) {
   font-family: "Optimistic Mono", ui-monospace, monospace;
 }
-</style>
-<meta charset="UTF-8">
+</style><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PiViet - Bản Free</title>
-<script src="https://sdk.minepi.com/pi-sdk.js">
-</script>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
 .top{position:sticky;top:0;z-index:10;background:#0d0318;border-bottom:1px solid #2a1450;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .logo{width:44px;height:44px;background:#6a1fa2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ffd700;font-weight:900}
@@ -45,313 +43,78 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;bo
 .bottom button{background:none;border:0;color:#a78bfa;cursor:pointer;font-size:12px}.bottom button.active{color:#fff}.bottom span{font-size:22px;display:block}
 .toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#ffd700;color:#3b0a5e;padding:10px 18px;border-radius:20px;font-weight:800;display:none;z-index:99}
 iframe{width:100%;border:0;border-radius:12px}
-#piLoginBtn,#piLoginBtn2{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,215,0,.4);display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.dot{width:16px!important;height:16px!important;border-radius:50%!important;display:inline-block!important;flex:none;background:#ef4444;border:2px solid #000;box-shadow:0 0 10px #ef4444}
-.dot.green{background:#22c55e!important;box-shadow:0 0 12px #22c55e;animation:blink 1.2s infinite}
-.dot.red{background:#ef4444!important;box-shadow:0 0 10px #ef4444}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
-.top button span{display:inline-block!important}
-#piLoginBtn,#piLoginBtn2{line-height:1}
-#verBadge{font-size:11px;color:#ffd700;text-align:center;padding:2px}
-</style>
-</head>
-<body>
-<div class="top">
-<div class="logo">π</div>
-<div>
-<b>PiViet</b>
-<span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span>
-</div>
-<span class="free">BẢN FREE</span>
-<button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">
-<span id="dot1" style="color:#ef4444;font-size:22px;line-height:1">●</span>
-<span id="piLoginText">Kết nối Pi</span>
-</button>
-</div>
-
+.fallback{font-size:13px;text-align:center;margin-top:8px;color:#666}
+.fallback a{color:#6a1fa2;font-weight:700}
+</style></head><body>
+<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px"><span id="dot1" style="color:#ef4444;font-size:22px;line-height:1">●</span><span id="piLoginText">Kết nối Pi</span></button></div>
 <div id="loginCount" style="padding:6px 14px;font-size:18px;font-weight:800;color:#ffd700;background:#0d0318;text-align:center">👥 —</div>
-
 <div id="tab-vn">
-<div class="card dark">
-<small>💰 Giá Pi hiện tại (giá thật, tự cập nhật)</small>
-<br>
-<b id="piPrice" style="color:#ffd700;font-size:24px">1 Pi ≈ đang tải...</b>
-<br>
-<span id="piPriceVND" style="color:#fff;font-size:15px">— VNĐ</span> &nbsp;<span id="piChange" style="color:#22c55e;font-size:13px">
-</span>
-<br>
-<small id="piPriceTime" style="color:#a78bfa">Đang lấy giá từ CoinGecko...</small>
-<br>
-<button id="refreshPriceBtn" type="button" style="margin-top:8px;background:#ffd700;color:#3b0a5e;border:0;padding:9px 16px;border-radius:20px;font-weight:800;cursor:pointer">🔄 Cập nhật giá ngay</button>
-</div>
-<div style="padding:0 14px">
-<h3>📰 Mới nhất</h3>
-</div>
-<div style="padding:0 14px"><h3>🌐 App Pi Khác — Bấm Là Mở</h3><p style="color:#c9a8ff;font-size:13px;margin:0 0 8px">Bấm AppLink Pi là thấy tất cả app Pi. Bấm app nào là mở app đó trong Pi Browser luôn.</p></div><div id="otherApps"></div>
-<div id="listVN">
-</div>
-</div>
-<div id="tab-qt" class="hidden">
-<div style="padding:6px 14px">
-<h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span>
-</h3>
-</div>
-<div id="listQT">
-</div>
-</div>
-<div id="tab-tao" class="hidden">
-<div class="card">
-<h3>2. Dán Tin Quốc Tế Vô Đây</h3>
-<textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây... Ví dụ: PiDex will launch on Mainnet Q1 2027...">
-</textarea>
-<input id="topicInput" placeholder="Chủ đề — vd: PiDex, Giá Pi, Ecosystem">
-<select id="platformSelect">
-<option>TikTok</option>
-<option>Facebook</option>
-<option>YouTube</option>
-</select>
-<button class="btn" id="make3Btn" type="button">✨ Viết 3 Bài Từ Tin Này</button>
-<p style="font-size:12px;color:#666">Dán tin rồi bấm nút tím — 3 mẫu dưới sẽ tự đầy chữ.</p>
-</div>
-<div class="card">
-<h3>3. Thêm Hình / Clip</h3>
-<label style="font-size:13px">Chọn hình từ điện thoại:</label>
-<input type="file" id="imgInput" accept="image/*">
-<img id="imgPreview" class="preview-img">
-<input id="clipLink" placeholder="Dán link TikTok / YouTube vô đây...">
-<button class="btn btn-green" id="showClipBtn" type="button">▶ Hiện Clip</button>
-<div id="clipBox" style="margin-top:8px">
-</div>
-</div>
-<div class="card">
-<h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span>
-</h3>
-<div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div>
-<button class="btn-copy" data-copy="mau1" type="button">📋 Copy Mẫu 1</button>
-</div>
-<div class="card">
-<h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span>
-</h3>
-<div id="mau2" class="mau">...</div>
-<button class="btn-copy" data-copy="mau2" type="button">📋 Copy Mẫu 2</button>
-</div>
-<div class="card">
-<h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span>
-</h3>
-<div id="mau3" class="mau">...</div>
-<button class="btn-copy" data-copy="mau3" type="button">📋 Copy Mẫu 3</button>
-</div>
-<p style="text-align:center;color:#a78bfa;font-size:12px;padding:0 14px">Bản nháp tự lưu — tắt app mở lại vẫn còn.</p>
-</div>
-<div class="bottom">
-<button type="button" data-tab="vn" class="active">
-<span>📰</span>Tin Pi Việt Nam</button>
-<button type="button" data-tab="qt">
-<span>🌍</span>Tin Quốc Tế</button>
-<button type="button" data-tab="tao">
-<span>✎</span>Tạo Bài Đăng</button>
-</div>
+<div class="card dark"><small>💰 Giá Pi hiện tại (giá thật, tự cập nhật)</small><br><b id="piPrice" style="color:#ffd700;font-size:24px">1 Pi ≈ đang tải...</b><br><span id="piPriceVND" style="color:#fff;font-size:15px">— VNĐ</span> &nbsp;<span id="piChange" style="color:#22c55e;font-size:13px"></span><br><small id="piPriceTime" style="color:#a78bfa">Đang lấy giá từ CoinGecko...</small><br><button id="refreshPriceBtn" type="button" style="margin-top:8px;background:#ffd700;color:#3b0a5e;border:0;padding:9px 16px;border-radius:20px;font-weight:800;cursor:pointer">🔄 Cập nhật giá ngay</button></div>
+<div style="padding:0 14px"><h3>🌐 App Pi Khác — Bấm Là Mở</h3><p style="color:#c9a8ff;font-size:13px;margin:0 0 8px">Trong Pi Browser mở bằng link Pi. Ngoài Pi Browser mở bằng link Web. Nếu nút trên không vào được, bấm link nhỏ ở dưới.</p></div><div id="otherApps"></div><div id="listVN"></div></div>
+<div id="tab-qt" class="hidden"><div style="padding:6px 14px"><h3>🌍 Tin Quốc Tế</h3></div><div id="listQT"></div></div>
+<div id="tab-tao" class="hidden"><div class="card"><h3>2. Dán Tin Quốc Tế Vô Đây</h3><textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây..."></textarea><input id="topicInput" placeholder="Chủ đề — vd: PiDex, Giá Pi, Ecosystem"><select id="platformSelect"><option>TikTok</option><option>Facebook</option><option>YouTube</option></select><button class="btn" id="make3Btn" type="button">✨ Viết 3 Bài Từ Tin Này</button></div><div class="card"><h3>3. Thêm Hình / Clip</h3><input type="file" id="imgInput" accept="image/*"><img id="imgPreview" class="preview-img"><input id="clipLink" placeholder="Dán link TikTok / YouTube vô đây..."><button class="btn btn-green" id="showClipBtn" type="button">▶ Hiện Clip</button><div id="clipBox" style="margin-top:8px"></div></div><div class="card"><h3>Mẫu 1 - Tin Tức</h3><div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div><button class="btn-copy" data-copy="mau1" type="button">📋 Copy Mẫu 1</button></div><div class="card"><h3>Mẫu 2 - Cảm Xúc</h3><div id="mau2" class="mau">...</div><button class="btn-copy" data-copy="mau2" type="button">📋 Copy Mẫu 2</button></div><div class="card"><h3>Mẫu 3 - Hỏi Tương Tác</h3><div id="mau3" class="mau">...</div><button class="btn-copy" data-copy="mau3" type="button">📋 Copy Mẫu 3</button></div></div>
+<div class="bottom"><button type="button" data-tab="vn" class="active"><span>📰</span>Tin Pi Việt Nam</button><button type="button" data-tab="qt"><span>🌍</span>Tin Quốc Tế</button><button type="button" data-tab="tao"><span>✎</span>Tạo Bài Đăng</button></div>
 <div class="toast" id="toast">Đã sao chép!</div>
 <script>
 var piSessionToken=null, piUser=null;
 var APPSTUDIO_LOGIN="https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 function onIncompletePaymentFound(p){ console.log("incomplete",p); }
-function setStatus(t){ /* Da bo dong trang thai - ten da hien tren nut */ }
-function setDebug(t){ /* production: no debug output */ }
-
-function updateConnectUI(){
-  var logged = !!(typeof piUser !== 'undefined' && piUser && piUser.username);
-  var d1=document.getElementById('dot1'); if(d1) d1.style.color = logged ? '#22c55e' : '#ef4444';
-  var d2=document.getElementById('dot2'); if(d2) d2.style.color = logged ? '#22c55e' : '#ef4444';
-  var t1=document.getElementById('piLoginText'); if(t1) t1.innerText = logged ? piUser.username : 'Kết nối Pi';
-  var t2=document.getElementById('piLoginText2'); if(t2) t2.innerText = logged ? 'Đã kết nối: '+piUser.username+' — bấm để ngắt' : 'Kết nối Pi — bấm để đăng nhập';
-  var b1=document.getElementById('piLoginBtn'); if(b1) b1.style.background = '#ffd700';
-  var b2=document.getElementById('piLoginBtn2'); if(b2) b2.style.background = '#ffd700';
-}
-function disconnectPi(){
-  piUser=null; piSessionToken=null;
-  try{ localStorage.removeItem('piviet_session'); }catch(e){}
-  window.__piviet_logging_in=false;
-  updateConnectUI();
-  setStatus('Đã ngắt kết nối — đèn đỏ. Bấm lại để đăng nhập.');
-  showToast('Đã ngắt kết nối Pi');
-}
-function toggleConnect(){
-  if(typeof piUser !== 'undefined' && piUser && piUser.username){ disconnectPi(); return; }
-  loginWithPi();
-}
-function loginWithPi(){
-  if(window.__piviet_logging_in){ setStatus("Đang đăng nhập rồi, đợi 1 chút..."); return; }
-  window.__piviet_logging_in = true;
-  // Tự mở chốt sau 20 giây để không bị kẹt mãi ở "Đang đăng nhập rồi"
-  setTimeout(function(){ if(window.__piviet_logging_in){ window.__piviet_logging_in=false; setStatus("Pi không trả lời, bấm lại thử."); } }, 20000);
-  setStatus("Đang đăng nhập Pi...");
-  setDebug("Đã bấm nút lúc " + new Date().toLocaleTimeString() + " — nếu dòng này đổi là nút đã chạy.");
-  if(!window.Pi){ setStatus("Mở bằng Pi Browser để đăng nhập Pi."); setDebug("Pi SDK: KHÔNG CÓ window.Pi"); window.__piviet_logging_in=false; return; }
-  // Pi.init là hàm SYNC, KHÔNG được .then() lên nó - .then() sẽ crash
-  try{ Pi.init({ version: "2.0" }); }catch(e){ /* Pi.init có thể đã gọi rồi, cứ tiếp tục */ }
-  setStatus("Đang mở bảng đăng nhập Pi...");
-  Pi.authenticate(["username"], onIncompletePaymentFound).then(function(auth){
-    setStatus("Đang xác thực với Pi...");
-    return fetch(APPSTUDIO_LOGIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})}).then(function(res){ if(!res.ok) throw new Error("App Studio trả về "+res.status); return res.json(); });
-  }).then(function(data){
-    piSessionToken=data.sessionToken; piUser=data.user;
-    updateConnectUI();
-    setStatus("Đã đăng nhập: "+piUser.username);
-    incrementLoginCount();
-    setDebug("Đăng nhập OK: "+piUser.username);
-    window.__piviet_logging_in=false;
-  }).catch(function(e){
-    window.__piviet_logging_in=false;
-    setStatus("Đăng nhập chưa được, bấm lại thử.");
-    setDebug("Lỗi chi tiết: "+(e&&e.message?e.message:e)+" | Pi có sẵn: "+(!!window.Pi));
-  });
-}
+function setStatus(t){}
+function setDebug(t){}
+function updateConnectUI(){ var logged=!!(piUser&&piUser.username); var d1=document.getElementById('dot1'); if(d1) d1.style.color=logged?'#22c55e':'#ef4444'; var t1=document.getElementById('piLoginText'); if(t1) t1.innerText=logged?piUser.username:'Kết nối Pi'; }
+function disconnectPi(){ piUser=null; piSessionToken=null; try{localStorage.removeItem('piviet_session');}catch(e){} window.__piviet_logging_in=false; updateConnectUI(); showToast('Đã ngắt kết nối Pi'); }
+function toggleConnect(){ if(piUser&&piUser.username){disconnectPi();return;} loginWithPi(); }
+function loginWithPi(){ if(window.__piviet_logging_in) return; window.__piviet_logging_in=true; setTimeout(function(){window.__piviet_logging_in=false;},20000); if(!window.Pi){ window.__piviet_logging_in=false; return; } try{ Pi.init({version:"2.0"});}catch(e){} Pi.authenticate(["username"],onIncompletePaymentFound).then(function(auth){ return fetch(APPSTUDIO_LOGIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accessToken:auth.accessToken})}).then(function(res){ if(!res.ok) throw new Error("App Studio "+res.status); return res.json(); }); }).then(function(data){ piSessionToken=data.sessionToken; piUser=data.user; updateConnectUI(); incrementLoginCount(); window.__piviet_logging_in=false; }).catch(function(e){ window.__piviet_logging_in=false; }); }
 function switchTab(id,btn){ document.querySelectorAll('.bottom button').forEach(function(b){b.classList.remove('active')}); if(btn) btn.classList.add('active'); ['vn','qt','tao'].forEach(function(t){ document.getElementById('tab-'+t).classList.toggle('hidden',t!==id); }); window.scrollTo(0,0); }
-var NEWS_VN=[
-{cat:'Pi Việt Nam',title:'Pioneer Việt Nam trao đổi hàng bằng Pi ngày càng sôi động',sum:'Cộng đồng Pioneer Việt đang chia sẻ nhiều cách trao đổi hàng hoá, dịch vụ bằng Pi trong đời sống hàng ngày.',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800',time:'2 giờ trước'},
-{cat:'Ecosystem Summit',title:'Ecosystem Summit: các app Pi trình diễn tính năng mới',sum:'Các đội xây app trong hệ sinh thái Pi giới thiệu bản cập nhật mới, tập trung vào trải nghiệm mobile và thanh toán.',img:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800',time:'5 giờ trước'},
-{cat:'PiDex',title:'PiDex là gì? Chợ giao dịch trong hệ sinh thái Pi',sum:'Giải thích đơn giản PiDex cho người mới: giao dịch, thanh khoản và cách Pioneer cần hiểu trước khi tham gia.',img:'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800',time:'1 ngày trước'}];
-var NEWS_QT=[
-{cat:'Quốc tế',title:'Pi Network mở rộng cộng đồng quốc tế: Pioneer ở nhiều nước tham gia',sum:'Bản dịch tiếng Việt: Cộng đồng Pi quốc tế tiếp tục lớn mạnh, nhiều sự kiện trực tuyến được tổ chức cho Pioneer.',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',time:'3 giờ trước'},
-{cat:'Quốc tế',title:'Tin quốc tế: các app Pi hướng tới người dùng phổ thông',sum:'Bản dịch tiếng Việt: Xu hướng chung là làm app dễ dùng hơn, nhanh hơn, ít bước hơn cho người mới.',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',time:'6 giờ trước'}];
+var NEWS_VN=[{cat:'Pi Việt Nam',title:'Pioneer Việt Nam trao đổi hàng bằng Pi ngày càng sôi động',sum:'Cộng đồng Pioneer Việt đang chia sẻ nhiều cách trao đổi hàng hoá, dịch vụ bằng Pi trong đời sống hàng ngày.',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800',time:'2 giờ trước'},{cat:'Ecosystem Summit',title:'Ecosystem Summit: các app Pi trình diễn tính năng mới',sum:'Các đội xây app trong hệ sinh thái Pi giới thiệu bản cập nhật mới.',img:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800',time:'5 giờ trước'},{cat:'PiDex',title:'PiDex là gì? Chợ giao dịch trong hệ sinh thái Pi',sum:'Giải thích đơn giản PiDex cho người mới.',img:'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800',time:'1 ngày trước'}];
+var NEWS_QT=[{cat:'Quốc tế',title:'Pi Network mở rộng cộng đồng quốc tế',sum:'Cộng đồng Pi quốc tế tiếp tục lớn mạnh.',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',time:'3 giờ trước'}];
 function card(n){ return '<div class="card"><span class="tag">'+n.cat+'</span> <span class="time">'+n.time+'</span><h3 style="margin-top:8px">'+n.title+'</h3><img class="newsimg" src="'+n.img+'"><p style="color:#444">'+n.sum+'</p><button class="btn" data-make="'+n.title.replace(/"/g,'')+'" type="button">✎ Tạo từ tin này</button></div>'; }
-document.getElementById('listVN').innerHTML=NEWS_VN.map(card).join('');
-document.getElementById('listQT').innerHTML=NEWS_QT.map(card).join('');
+document.getElementById('listVN').innerHTML=NEWS_VN.map(card).join(''); document.getElementById('listQT').innerHTML=NEWS_QT.map(card).join('');
 function clean(s){ return s.trim().replace(/\s+/g,' '); }
-function make3(){
-  var raw=document.getElementById('newsInput').value.trim();
-  var topic=document.getElementById('topicInput').value.trim()||'Tin Pi';
-  var plat=document.getElementById('platformSelect').value;
-  if(!raw){ setStatus("Dán tin vô ô 2 trước đã!"); return; }
-  var first=clean(raw).split('.')[0];
-  var short=clean(raw).slice(0,220);
-  document.getElementById('mau1').innerText="📰 "+topic+" | TIN MỚI\n\n"+first+".\n\n"+short+"...\n\nNguồn: PiViet\n#PiNetwork #PiViet #PioneerViet";
-  document.getElementById('mau2').innerText="🥹 Đọc tin này xong thấy tự hào ghê...\n\n"+first+".\n\nMình tin Pioneer Việt mình không bỏ cuộc. Ai còn đào Pi mỗi ngày, comment “CÒN ĐÂY” cho mình biết với 👇\n\n#PiNetwork #PiViet #PioneerViet";
-  document.getElementById('mau3').innerText="🤔 "+topic+" — Bạn nghĩ sao?\n\n"+first+".\n\nTheo bạn tin này tốt hay xấu cho Pioneer?\nA. Rất tốt, Pi sắp bay\nB. Cứ bình tĩnh chờ tiếp\nC. Mình chưa hiểu, giải thích giúp\n\nComment A / B / C xuống dưới 👇\n\nXem thêm tại PiViet — đăng lại lên "+plat+" nhé!";
-  try{ localStorage.setItem('piviet_free', JSON.stringify({news:raw,topic:topic,m1:document.getElementById('mau1').innerText,m2:document.getElementById('mau2').innerText,m3:document.getElementById('mau3').innerText})); }catch(e){}
-  showToast('Đã viết 3 bài!');
-}
-function copyMau(id){ var t=document.getElementById(id).innerText; if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){showToast('Đã sao chép!')}); else showToast('Đã sao chép!'); }
+function make3(){ var raw=document.getElementById('newsInput').value.trim(); var topic=document.getElementById('topicInput').value.trim()||'Tin Pi'; var plat=document.getElementById('platformSelect').value; if(!raw) return; var first=clean(raw).split('.')[0]; var short=clean(raw).slice(0,220); document.getElementById('mau1').innerText="📰 "+topic+" | TIN MỚI\n\n"+first+".\n\n"+short+"...\n\nNguồn: PiViet\n#PiNetwork #PiViet"; document.getElementById('mau2').innerText="🥹 Đọc tin này xong thấy tự hào ghê...\n\n"+first+".\n\n#PiNetwork #PiViet"; document.getElementById('mau3').innerText="🤔 "+topic+" — Bạn nghĩ sao?\n\n"+first+".\n\nComment xuống dưới 👇"; try{localStorage.setItem('piviet_free',JSON.stringify({news:raw,topic:topic,m1:document.getElementById('mau1').innerText,m2:document.getElementById('mau2').innerText,m3:document.getElementById('mau3').innerText}));}catch(e){} showToast('Đã viết 3 bài!'); }
+function copyMau(id){ var t=document.getElementById(id).innerText; if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){showToast('Đã sao chép!')}); }
 function showToast(m){ var t=document.getElementById('toast'); t.innerText=m||'Đã sao chép!'; t.style.display='block'; setTimeout(function(){t.style.display='none'},2000); }
 function showImg(e){ var f=e.target.files[0]; if(!f) return; var url=URL.createObjectURL(f); var img=document.getElementById('imgPreview'); img.src=url; img.style.display='block'; }
-function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var embed=''; var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); if(yt) embed='<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>'; else embed='<p>Mở link này trong app TikTok / YouTube:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; document.getElementById('clipBox').innerHTML=embed; }
-// Bind all buttons by code, no inline onclick, click + touchstart for Pi Browser WebView
+function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); document.getElementById('clipBox').innerHTML=yt?'<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>':'<p>Mở link này:<br><a href="'+link+'">'+link+'</a></p>'; }
+function fmtUSD(x){ return '$'+Number(x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}); }
+function fmtVND(x){ return Number(x).toLocaleString('vi-VN',{maximumFractionDigits:0})+' VNĐ'; }
+function loadPiPrice(){ var el=document.getElementById('piPrice'); fetch('https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd,vnd&include_24hr_change=true').then(function(r){return r.json();}).then(function(d){ var p=d&&d['pi-network']; if(!p||!p.usd) throw new Error('no'); if(el) el.innerText='1 Pi ≈ '+fmtUSD(p.usd); document.getElementById('piPriceVND').innerText='≈ '+fmtVND(p.vnd); document.getElementById('piPriceTime').innerText='Cập nhật lúc: '+new Date().toLocaleString('vi-VN')+' • Nguồn: CoinGecko'; }).catch(function(){ if(el) el.innerText='1 Pi ≈ chưa lấy được giá'; }); }
+var ABACUS_NS='piviet'; var ABACUS_KEY='logins-v7-chot';
+function getLocalCount(){ try{return parseInt(localStorage.getItem('piviet_login_count_backup')||'0',10)||0;}catch(e){return 0;} }
+function setLocalCount(n){ try{localStorage.setItem('piviet_login_count_backup',String(n));}catch(e){} }
+function showCounts(g){ var el=document.getElementById('loginCount'); if(!el) return; var show=g==null?getLocalCount():Math.max(g,getLocalCount()); el.innerText='👥 '+show; }
+function loadGlobalCount(){ fetch('https://abacus.jasoncameron.dev/get/'+ABACUS_NS+'/'+ABACUS_KEY).then(function(r){return r.json();}).then(function(d){ var v=d&&d.value!=null?d.value:null; if(v!=null&&v>getLocalCount()) setLocalCount(v); showCounts(v); }).catch(function(){ showCounts(null); }); }
+function incrementLoginCount(){ var now=getLocalCount()+1; setLocalCount(now); showCounts(now); fetch('https://abacus.jasoncameron.dev/hit/'+ABACUS_NS+'/'+ABACUS_KEY).then(function(r){return r.json();}).then(function(d){ var v=d&&d.value!=null?d.value:null; if(v!=null){ if(v>getLocalCount()) setLocalCount(v); showCounts(v);} }).catch(function(){}); }
+window.addEventListener('pagehide',function(){ try{disconnectPi();}catch(e){} });
 
-// ---- GIÁ PI THẬT (CoinGecko, miễn phí, không cần API key) ----
-function fmtUSD(x){ return '$' + Number(x).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:4}); }
-function fmtVND(x){ return Number(x).toLocaleString('vi-VN',{maximumFractionDigits:0}) + ' VNĐ'; }
-function loadPiPrice(){
-  var el=document.getElementById('piPrice'); var vnd=document.getElementById('piPriceVND');
-  var ch=document.getElementById('piChange'); var tm=document.getElementById('piPriceTime');
-  if(el) el.innerText='1 Pi ≈ đang tải...';
-  if(tm) tm.innerText='Đang lấy giá từ CoinGecko...';
-  fetch('https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd,vnd&include_24hr_change=true')
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var p=d && d['pi-network']; if(!p || !p.usd) throw new Error('no price');
-      if(el) el.innerText='1 Pi ≈ ' + fmtUSD(p.usd);
-      if(vnd && p.vnd) vnd.innerText='≈ ' + fmtVND(p.vnd);
-      if(ch && p.usd_24h_change!=null){ var c=p.usd_24h_change; ch.innerText=(c>=0?'▲ +':'▼ ')+c.toFixed(2)+'% (24h)'; ch.style.color=c>=0?'#22c55e':'#ef4444'; }
-      if(tm) tm.innerText='Cập nhật lúc: ' + new Date().toLocaleString('vi-VN') + ' • Nguồn: CoinGecko • Chỉ tham khảo, không phải giá mua bán';
-    })
-    .catch(function(){
-      // Fallback: thử nguồn dự phòng CoinPaprika
-      fetch('https://api.coinpaprika.com/v1/tickers/pi-pi-network')
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          var usd=d && d.quotes && d.quotes.USD && d.quotes.USD.price;
-          if(!usd) throw new Error('no price 2');
-          if(el) el.innerText='1 Pi ≈ ' + fmtUSD(usd);
-          if(vnd) vnd.innerText='≈ ' + fmtVND(usd*26000) + ' (ước tính)';
-          if(ch && d.quotes.USD.percent_change_24h!=null){ var c=d.quotes.USD.percent_change_24h; ch.innerText=(c>=0?'▲ +':'▼ ')+c.toFixed(2)+'% (24h)'; ch.style.color=c>=0?'#22c55e':'#ef4444'; }
-          if(tm) tm.innerText='Cập nhật lúc: ' + new Date().toLocaleString('vi-VN') + ' • Nguồn: CoinPaprika • Chỉ tham khảo';
-        })
-        .catch(function(){
-          if(el) el.innerText='1 Pi ≈ chưa lấy được giá';
-          if(tm) tm.innerText='Không lấy được giá lúc này (mạng / CoinGecko chặn). Bấm nút Cập nhật giá ngay để thử lại.';
-        });
-    });
-}
-
-
-// ---- BỘ ĐẾM SỐ LƯỢT ĐĂNG NHẬP ----
-// Có 2 số: (1) Tổng của cả app - đếm bằng dịch vụ miễn phí Abacus, ai đăng nhập cũng +1
-var ABACUS_NS = 'piviet';
-var ABACUS_KEY = 'logins-v7-chot';
-function getLocalCount(){ try{ return parseInt(localStorage.getItem('piviet_login_count_backup')||'0',10)||0; }catch(e){ return 0; } }
-function setLocalCount(n){ try{ localStorage.setItem('piviet_login_count_backup', String(n)); }catch(e){} }
-function showCounts(globalCount){
-  var el=document.getElementById('loginCount'); if(!el) return;
-  var local=getLocalCount();
-  var show = globalCount==null ? local : Math.max(globalCount, local);
-  el.innerText='👥 ' + show;
-}
-function loadGlobalCount(){
-  // Abacus đúng định dạng: /get/<namespace>/<key> - bản cũ ghi 1 đoạn nên không gọi được
-  fetch('https://abacus.jasoncameron.dev/get/' + ABACUS_NS + '/' + ABACUS_KEY)
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var v = d && d.value!=null ? d.value : null;
-      if(v!=null && v>getLocalCount()) setLocalCount(v);
-      showCounts(v);
-    })
-    .catch(function(){
-      fetch('https://api.countapi.xyz/get/piviet/logins-v7-chot')
-        .then(function(r){ return r.json(); })
-        .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null && v>getLocalCount()) setLocalCount(v); showCounts(v); })
-        .catch(function(){ showCounts(null); });
-    });
-}
-function incrementLoginCount(){
-  // Chốt: cứ 1 lần đăng nhập thành công là +1, không phân biệt mới/cũ, không trừ khi đăng xuất
-  // 1) Hiện +1 NGAY LẬP TỨC, không đợi mạng - để bạn thấy số nhảy liền
-  var now = getLocalCount() + 1;
-  setLocalCount(now);
-  showCounts(now);
-  // 2) Gửi +1 lên máy chủ đếm (Abacus), để máy khác cũng thấy
-  fetch('https://abacus.jasoncameron.dev/hit/' + ABACUS_NS + '/' + ABACUS_KEY)
-    .then(function(r){ return r.json(); })
-    .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null){ if(v>getLocalCount()) setLocalCount(v); showCounts(v); } })
-    .catch(function(){
-      fetch('https://api.countapi.xyz/hit/piviet/logins-v7-chot')
-        .then(function(r){ return r.json(); })
-        .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null){ if(v>getLocalCount()) setLocalCount(v); showCounts(v); } })
-        .catch(function(){ /* Đã hiện +1 ở trên rồi, mạng lỗi cũng không mất số */ });
-    });
-}
-
-
-// ---- THOÁT APP LÀ NGẮT ĐĂNG NHẬP ----
-// Pi Browser giữ trang chạy nền khi bạn chỉ bấm Home, nên mở lại vẫn thấy đang đăng nhập.
-// Thêm: khi trang bị đóng / ẩn hẳn (pagehide), tự ngắt kết nối để lần sau mở lại phải đăng nhập lại.
-window.addEventListener('pagehide', function(){ try{ disconnectPi(); }catch(e){} });
-document.addEventListener('visibilitychange', function(){
-  if(document.hidden){
-    // Đợi 3 giây, nếu bạn quay lại app ngay thì không ngắt; nếu thoát hẳn thì ngắt
-    setTimeout(function(){ if(document.hidden){ try{ disconnectPi(); }catch(e){} } }, 3000);
-  }
-});
-
-
-// ---- APP PI KHAC: MUON THEM APP NAO THI THEM 1 DONG O DAY ----
-// Cach lay link app khac: mo app do trong Pi Browser -> bam giu thanh dia chi -> Copy -> dan vao cho link: ben duoi
+// ==== ĐÃ SỬA: 2 ĐƯỜNG LINK - SỬA 2 CHỖ CÓ CHỮ TODO ====
+function isPiBrowser(){ try{ return /PiBrowser/i.test(navigator.userAgent) || !!window.Pi; }catch(e){ return false; } }
 var OTHER_APPS=[
-{name:'📱 AppLink Pi — Tất cả App Pi', link:'https://applink.pinet.com/?pi_src=all_apps', desc:'Kho app Pi chính thức của Pi Network. Bấm vào là thấy tất cả app Pi, tìm app nào cũng được.', emoji:'📱'},
-{name:'Pi Cho — Chợ Pi', link:'https://watashichin-design.github.io/', desc:'Chợ trao đổi hàng bằng Pi của bạn. Thay link này bằng link PiNet của Pi Cho khi có.', emoji:'🛒'},
-{name:'PiDex — Chợ giao dịch Pi', link:'https://pidex.pinet.com/', desc:'Chợ giao dịch trong hệ sinh thái Pi. Thay link này nếu bạn có link PiDex đúng.', emoji:'💱'},
-{name:'Pi Browser — Khám phá', link:'https://minepi.com/', desc:'Trang chính của Pi Network, coi thêm nhiều app Pi khác.', emoji:'🌐'}
+{name:'📱 AppLink Pi — Tất cả App Pi', piLink:'https://applink.pinet.com/?pi_src=all_apps', webLink:'https://minepi.com/', desc:'Kho app Pi chính thức của Pi Network.', emoji:'📱'},
+// Pi Cho - link PiNet thật đã chốt
+{name:'Pi Cho — Chợ Pi', piLink:'https://apppichop1202.pinet.com/', webLink:'https://watashichin-design.github.io/', desc:'Chợ trao đổi hàng bằng Pi của bạn. Nếu bấm Pi không được, bấm link Web ở dưới.', emoji:'🛒'},
+// PiViet - link PiNet thật đã chốt
+{name:'PiViet — Trang chính', piLink:'https://apppivietrtm1476.pinet.com/', webLink:'https://watashichin-design.github.io/', desc:'Trang chính PiViet trong Pi Browser. Mở bằng Pi Browser thì dùng link Pi, mở bằng Chrome thì dùng link Web.', emoji:'🇻🇳'},
+// ĐÃ SỬA: pidex.pinet.com KHÔNG TỒN TẠI -> PiDex nằm trong Ví Pi, nên piLink = wallet.pinet.com
+{name:'PiDex — Chợ giao dịch Pi', piLink:'https://wallet.pinet.com/', webLink:'https://wallet.pinet.com/', desc:'PiDex nằm trong Ví Pi. Bấm để mở Ví Pi rồi vào PiDex.', emoji:'💱'},
+{name:'Pi Browser — Khám phá', piLink:'https://minepi.com/', webLink:'https://minepi.com/', desc:'Trang chính của Pi Network.', emoji:'🌐'}
 ];
 function renderOtherApps(){
   var box=document.getElementById('otherApps'); if(!box) return;
+  var inPi=isPiBrowser();
   box.innerHTML=OTHER_APPS.map(function(a){
-    return '<div class="card"><h3>'+a.emoji+' '+a.name+'</h3><p style="color:#444">'+a.desc+'</p><p style="font-size:12px;color:#888;word-break:break-all">'+a.link+'</p><a href="'+a.link+'" target="_blank" rel="noopener" style="display:block;text-align:center;background:#6a1fa2;color:#fff;padding:12px;border-radius:12px;font-weight:800;text-decoration:none;margin-top:8px">Mở App →</a></div>';
+    var primary=inPi?a.piLink:a.webLink;
+    var fallback=inPi?a.webLink:a.piLink;
+    var fallbackLabel=inPi?'Mở bằng Web ngoài →':'Mở bằng Pi Browser →';
+    // QUAN TRỌNG: Không dùng target=_blank, dùng location.href để Pi Browser không chặn
+    return '<div class="card"><h3>'+a.emoji+' '+a.name+'</h3><p style="color:#444">'+a.desc+'</p><p style="font-size:12px;color:#888;word-break:break-all">'+primary+'</p><button type="button" class="btn open-app-btn" data-url="'+primary+'">Mở App →</button><p class="fallback">Nếu không vào được, bấm: <a href="'+fallback+'">'+fallbackLabel+'</a><br><span style="font-size:11px;color:#999;word-break:break-all">'+fallback+'</span></p></div>';
   }).join('');
+  box.querySelectorAll('.open-app-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ var url=btn.getAttribute('data-url'); window.location.href=url; });
+  });
 }
-
 function bindAll(){
-  var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',toggleConnect); }
-  var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',toggleConnect); }
+  var b1=document.getElementById('piLoginBtn'); if(b1) b1.addEventListener('click',toggleConnect);
   updateConnectUI();
   var m=document.getElementById('make3Btn'); if(m) m.addEventListener('click',make3);
   var sc=document.getElementById('showClipBtn'); if(sc) sc.addEventListener('click',showClip);
@@ -359,13 +122,8 @@ function bindAll(){
   document.querySelectorAll('.bottom button').forEach(function(b){ b.addEventListener('click',function(){ switchTab(b.getAttribute('data-tab'),b); }); });
   document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ copyMau(b.getAttribute('data-copy')); }); });
   document.querySelectorAll('[data-make]').forEach(function(b){ b.addEventListener('click',function(){ var all=NEWS_VN.concat(NEWS_QT); var n=all.find(function(x){return x.title===b.getAttribute('data-make')}); if(!n) return; document.getElementById('newsInput').value=n.title+'. '+n.sum; var tb=document.querySelectorAll('.bottom button')[2]; switchTab('tao',tb); make3(); }); });
-  setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); setTimeout(function(){ setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); }, 800);
   var rb=document.getElementById('refreshPriceBtn'); if(rb) rb.addEventListener('click',loadPiPrice);
-  loadPiPrice();
-  setInterval(loadPiPrice, 5*60*1000);
-  loadGlobalCount();
-  renderOtherApps();
-  setStatus("Chưa đăng nhập Pi");
+  loadPiPrice(); setInterval(loadPiPrice,5*60*1000); loadGlobalCount(); renderOtherApps();
 }
 bindAll();
 try{ var d=JSON.parse(localStorage.getItem('piviet_free')||'null'); if(d){ document.getElementById('newsInput').value=d.news||''; document.getElementById('topicInput').value=d.topic||''; if(d.m1) document.getElementById('mau1').innerText=d.m1; if(d.m2) document.getElementById('mau2').innerText=d.m2; if(d.m3) document.getElementById('mau3').innerText=d.m3; } }catch(e){}

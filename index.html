@@ -87,6 +87,7 @@ iframe{width:100%;border:0;border-radius:12px}
 <div style="padding:0 14px">
 <h3>📰 Mới nhất</h3>
 </div>
+<div style="padding:0 14px"><h3>🌐 App Pi Khác — Bấm Là Mở</h3><p style="color:#c9a8ff;font-size:13px;margin:0 0 8px">Đang ở PiViet, bấm app nào là mở app đó trong Pi Browser luôn.</p></div><div id="otherApps"></div>
 <div id="listVN">
 </div>
 </div>
@@ -332,6 +333,21 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
+
+// ---- APP PI KHAC: MUON THEM APP NAO THI THEM 1 DONG O DAY ----
+// Cach lay link app khac: mo app do trong Pi Browser -> bam giu thanh dia chi -> Copy -> dan vao cho link: ben duoi
+var OTHER_APPS=[
+{name:'Pi Cho — Chợ Pi', link:'https://watashichin-design.github.io/', desc:'Chợ trao đổi hàng bằng Pi của bạn. Thay link này bằng link PiNet của Pi Cho khi có.', emoji:'🛒'},
+{name:'PiDex — Chợ giao dịch Pi', link:'https://pidex.pinet.com/', desc:'Chợ giao dịch trong hệ sinh thái Pi. Thay link này nếu bạn có link PiDex đúng.', emoji:'💱'},
+{name:'Pi Browser — Khám phá', link:'https://minepi.com/', desc:'Trang chính của Pi Network, coi thêm nhiều app Pi khác.', emoji:'🌐'}
+];
+function renderOtherApps(){
+  var box=document.getElementById('otherApps'); if(!box) return;
+  box.innerHTML=OTHER_APPS.map(function(a){
+    return '<div class="card"><h3>'+a.emoji+' '+a.name+'</h3><p style="color:#444">'+a.desc+'</p><p style="font-size:12px;color:#888;word-break:break-all">'+a.link+'</p><a href="'+a.link+'" style="display:block;text-align:center;background:#6a1fa2;color:#fff;padding:12px;border-radius:12px;font-weight:800;text-decoration:none;margin-top:8px">Mở App →</a></div>';
+  }).join('');
+}
+
 function bindAll(){
   var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',toggleConnect); }
   var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',toggleConnect); }
@@ -347,6 +363,7 @@ function bindAll(){
   loadPiPrice();
   setInterval(loadPiPrice, 5*60*1000);
   loadGlobalCount();
+  renderOtherApps();
   setStatus("Chưa đăng nhập Pi");
 }
 bindAll();

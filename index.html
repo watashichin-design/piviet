@@ -276,24 +276,47 @@ function loadPiPrice(){
 
 // ---- BỘ ĐẾM SỐ LƯỢT ĐĂNG NHẬP ----
 // Có 2 số: (1) Tổng của cả app - đếm bằng dịch vụ miễn phí Abacus, ai đăng nhập cũng +1
-var GLOBAL_COUNT_KEY = 'piviet-pi-logins-v7';
-function showCounts(globalCount){ var el=document.getElementById('loginCount'); if(!el) return; el.innerText='👥 ' + (globalCount==null ? '—' : globalCount); }
+var ABACUS_NS = 'piviet';
+var ABACUS_KEY = 'logins-v7-chot';
+function getLocalCount(){ try{ return parseInt(localStorage.getItem('piviet_login_count_backup')||'0',10)||0; }catch(e){ return 0; } }
+function setLocalCount(n){ try{ localStorage.setItem('piviet_login_count_backup', String(n)); }catch(e){} }
+function showCounts(globalCount){
+  var el=document.getElementById('loginCount'); if(!el) return;
+  var local=getLocalCount();
+  var show = globalCount==null ? local : Math.max(globalCount, local);
+  el.innerText='👥 ' + show;
+}
 function loadGlobalCount(){
-  // Đọc tổng, không +1 (chỉ +1 khi đăng nhập thành công)
-  fetch('https://abacus.jasoncameron.dev/get/' + GLOBAL_COUNT_KEY)
+  // Abacus đúng định dạng: /get/<namespace>/<key> - bản cũ ghi 1 đoạn nên không gọi được
+  fetch('https://abacus.jasoncameron.dev/get/' + ABACUS_NS + '/' + ABACUS_KEY)
     .then(function(r){ return r.json(); })
-    .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
-    .catch(function(){ showCounts(null); });
+    .then(function(d){
+      var v = d && d.value!=null ? d.value : null;
+      if(v!=null && v>getLocalCount()) setLocalCount(v);
+      showCounts(v);
+    })
+    .catch(function(){
+      fetch('https://api.countapi.xyz/get/piviet/logins-v7-chot')
+        .then(function(r){ return r.json(); })
+        .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null && v>getLocalCount()) setLocalCount(v); showCounts(v); })
+        .catch(function(){ showCounts(null); });
+    });
 }
 function incrementLoginCount(){
-  fetch('https://abacus.jasoncameron.dev/hit/' + GLOBAL_COUNT_KEY)
+  // Chốt: cứ 1 lần đăng nhập thành công là +1, không phân biệt mới/cũ, không trừ khi đăng xuất
+  // 1) Hiện +1 NGAY LẬP TỨC, không đợi mạng - để bạn thấy số nhảy liền
+  var now = getLocalCount() + 1;
+  setLocalCount(now);
+  showCounts(now);
+  // 2) Gửi +1 lên máy chủ đếm (Abacus), để máy khác cũng thấy
+  fetch('https://abacus.jasoncameron.dev/hit/' + ABACUS_NS + '/' + ABACUS_KEY)
     .then(function(r){ return r.json(); })
-    .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
+    .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null){ if(v>getLocalCount()) setLocalCount(v); showCounts(v); } })
     .catch(function(){
-      fetch('https://api.countapi.xyz/hit/piviet-v7/pi-logins')
+      fetch('https://api.countapi.xyz/hit/piviet/logins-v7-chot')
         .then(function(r){ return r.json(); })
-        .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
-        .catch(function(){ showCounts(null); });
+        .then(function(d){ var v=d && d.value!=null ? d.value : null; if(v!=null){ if(v>getLocalCount()) setLocalCount(v); showCounts(v); } })
+        .catch(function(){ /* Đã hiện +1 ở trên rồi, mạng lỗi cũng không mất số */ });
     });
 }
 

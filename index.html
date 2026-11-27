@@ -1,6 +1,32 @@
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="vi">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PiViet - Bản Free</title>
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script src="https://sdk.minepi.com/pi-sdk.js">
+</script>
 <style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#12051f;color:#fff;padding-bottom:100px}
 .top{position:sticky;top:0;z-index:10;background:#0d0318;border-bottom:1px solid #2a1450;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .logo{width:44px;height:44px;background:#6a1fa2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ffd700;font-weight:900}
@@ -27,42 +53,109 @@ iframe{width:100%;border:0;border-radius:12px}
 .top button span{display:inline-block!important}
 #piLoginBtn,#piLoginBtn2{line-height:1}
 #verBadge{font-size:11px;color:#ffd700;text-align:center;padding:2px}
-</style></head><body>
-<div class="top"><div class="logo">π</div><div><b>PiViet</b><span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span></div><span class="free">BẢN FREE</span><button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px"><span id="dot1" style="color:#ef4444;font-size:22px;line-height:1">●</span><span id="piLoginText">Kết nối Pi</span></button></div>
-<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px"><span id="dot2" style="color:#ef4444;font-size:22px;line-height:1">●</span><span id="piLoginText2">Kết nối Pi — bấm để đăng nhập</span></button>
+</style>
+</head>
+<body>
+<div class="top">
+<div class="logo">π</div>
+<div>
+<b>PiViet</b>
+<span>TIN PI VIỆT NAM • KHÔNG CẦN ĐĂNG NHẬP</span>
+</div>
+<span class="free">BẢN FREE</span>
+<button id="piLoginBtn" type="button" style="background:#ffd700;color:#3b0a5e;border:0;padding:8px 12px;border-radius:20px;font-weight:800;cursor:pointer;font-size:12px">
+<span id="dot1" style="color:#ef4444;font-size:22px;line-height:1">●</span>
+<span id="piLoginText">Kết nối Pi</span>
+</button>
+</div>
+<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px">
+<span id="dot2" style="color:#ef4444;font-size:22px;line-height:1">●</span>
+<span id="piLoginText2">Kết nối Pi — bấm để đăng nhập</span>
+</button>
 
-<div id="verBadge">✅ Bản v5 — Đèn xanh / đỏ — Bấm 1 đăng nhập, bấm 2 ngắt</div>
+<div id="verBadge">✅ Bản v6 — Đèn xanh / đỏ + Giá Pi thật tự cập nhật</div>
 <div id="piStatus" style="padding:6px 14px;font-size:12px;color:#c9a8ff;background:#0d0318;text-align:center">Chưa đăng nhập Pi</div>
 
 <div id="tab-vn">
-<div class="card dark"><small>Giá Pi hiện tại (tham khảo)</small><br><b style="color:#ffd700;font-size:22px">1 Pi ≈ —</b> <span style="color:#22c55e">▲ Cập nhật sau</span></div>
-<div style="padding:0 14px"><h3>📰 Mới nhất</h3></div><div id="listVN"></div>
+<div class="card dark">
+<small>💰 Giá Pi hiện tại (giá thật, tự cập nhật)</small>
+<br>
+<b id="piPrice" style="color:#ffd700;font-size:24px">1 Pi ≈ đang tải...</b>
+<br>
+<span id="piPriceVND" style="color:#fff;font-size:15px">— VNĐ</span> &nbsp;<span id="piChange" style="color:#22c55e;font-size:13px">
+</span>
+<br>
+<small id="piPriceTime" style="color:#a78bfa">Đang lấy giá từ CoinGecko...</small>
+<br>
+<button id="refreshPriceBtn" type="button" style="margin-top:8px;background:#ffd700;color:#3b0a5e;border:0;padding:9px 16px;border-radius:20px;font-weight:800;cursor:pointer">🔄 Cập nhật giá ngay</button>
 </div>
-<div id="tab-qt" class="hidden"><div style="padding:6px 14px"><h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span></h3></div><div id="listQT"></div></div>
+<div style="padding:0 14px">
+<h3>📰 Mới nhất</h3>
+</div>
+<div id="listVN">
+</div>
+</div>
+<div id="tab-qt" class="hidden">
+<div style="padding:6px 14px">
+<h3>🌍 Tin Quốc Tế <span style="font-size:12px;color:#a78bfa">— đã dịch sang tiếng Việt</span>
+</h3>
+</div>
+<div id="listQT">
+</div>
+</div>
 <div id="tab-tao" class="hidden">
-<div class="card"><h3>2. Dán Tin Quốc Tế Vô Đây</h3>
-<textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây... Ví dụ: PiDex will launch on Mainnet Q1 2027..."></textarea>
+<div class="card">
+<h3>2. Dán Tin Quốc Tế Vô Đây</h3>
+<textarea id="newsInput" rows="5" placeholder="Dán tin tiếng Anh / tiếng Việt vô đây... Ví dụ: PiDex will launch on Mainnet Q1 2027...">
+</textarea>
 <input id="topicInput" placeholder="Chủ đề — vd: PiDex, Giá Pi, Ecosystem">
-<select id="platformSelect"><option>TikTok</option><option>Facebook</option><option>YouTube</option></select>
+<select id="platformSelect">
+<option>TikTok</option>
+<option>Facebook</option>
+<option>YouTube</option>
+</select>
 <button class="btn" id="make3Btn" type="button">✨ Viết 3 Bài Từ Tin Này</button>
-<p style="font-size:12px;color:#666">Dán tin rồi bấm nút tím — 3 mẫu dưới sẽ tự đầy chữ.</p></div>
-<div class="card"><h3>3. Thêm Hình / Clip</h3>
+<p style="font-size:12px;color:#666">Dán tin rồi bấm nút tím — 3 mẫu dưới sẽ tự đầy chữ.</p>
+</div>
+<div class="card">
+<h3>3. Thêm Hình / Clip</h3>
 <label style="font-size:13px">Chọn hình từ điện thoại:</label>
 <input type="file" id="imgInput" accept="image/*">
 <img id="imgPreview" class="preview-img">
 <input id="clipLink" placeholder="Dán link TikTok / YouTube vô đây...">
 <button class="btn btn-green" id="showClipBtn" type="button">▶ Hiện Clip</button>
-<div id="clipBox" style="margin-top:8px"></div></div>
-<div class="card"><h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span></h3><div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div><button class="btn-copy" data-copy="mau1" type="button">📋 Copy Mẫu 1</button></div>
-<div class="card"><h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span></h3><div id="mau2" class="mau">...</div><button class="btn-copy" data-copy="mau2" type="button">📋 Copy Mẫu 2</button></div>
-<div class="card"><h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span></h3><div id="mau3" class="mau">...</div><button class="btn-copy" data-copy="mau3" type="button">📋 Copy Mẫu 3</button></div>
+<div id="clipBox" style="margin-top:8px">
+</div>
+</div>
+<div class="card">
+<h3>Mẫu 1 - Tin Tức <span class="tag">Mẫu 1</span>
+</h3>
+<div id="mau1" class="mau">Dán tin rồi bấm Viết 3 Bài Từ Tin Này</div>
+<button class="btn-copy" data-copy="mau1" type="button">📋 Copy Mẫu 1</button>
+</div>
+<div class="card">
+<h3>Mẫu 2 - Cảm Xúc <span class="tag">Mẫu 2</span>
+</h3>
+<div id="mau2" class="mau">...</div>
+<button class="btn-copy" data-copy="mau2" type="button">📋 Copy Mẫu 2</button>
+</div>
+<div class="card">
+<h3>Mẫu 3 - Hỏi Tương Tác <span class="tag">Mẫu 3</span>
+</h3>
+<div id="mau3" class="mau">...</div>
+<button class="btn-copy" data-copy="mau3" type="button">📋 Copy Mẫu 3</button>
+</div>
 <p style="text-align:center;color:#a78bfa;font-size:12px;padding:0 14px">Bản nháp tự lưu — tắt app mở lại vẫn còn.</p>
 </div>
 <div class="bottom">
-<button type="button" data-tab="vn" class="active"><span>📰</span>Tin Pi Việt Nam</button>
-<button type="button" data-tab="qt"><span>🌍</span>Tin Quốc Tế</button>
-<button type="button" data-tab="tao"><span>✎</span>Tạo Bài Đăng</button>
-</div><div class="toast" id="toast">Đã sao chép!</div>
+<button type="button" data-tab="vn" class="active">
+<span>📰</span>Tin Pi Việt Nam</button>
+<button type="button" data-tab="qt">
+<span>🌍</span>Tin Quốc Tế</button>
+<button type="button" data-tab="tao">
+<span>✎</span>Tạo Bài Đăng</button>
+</div>
+<div class="toast" id="toast">Đã sao chép!</div>
 <script>
 var piSessionToken=null, piUser=null;
 var APPSTUDIO_LOGIN="https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
@@ -147,6 +240,43 @@ function showToast(m){ var t=document.getElementById('toast'); t.innerText=m||'�
 function showImg(e){ var f=e.target.files[0]; if(!f) return; var url=URL.createObjectURL(f); var img=document.getElementById('imgPreview'); img.src=url; img.style.display='block'; }
 function showClip(){ var link=document.getElementById('clipLink').value.trim(); if(!link){ alert('Dán link TikTok / YouTube đã!'); return; } var embed=''; var yt=link.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/); if(yt) embed='<iframe height="220" src="https://www.youtube.com/embed/'+yt[1]+'" allowfullscreen></iframe>'; else embed='<p>Mở link này trong app TikTok / YouTube:<br><a href="'+link+'" target="_blank">'+link+'</a></p>'; document.getElementById('clipBox').innerHTML=embed; }
 // Bind all buttons by code, no inline onclick, click + touchstart for Pi Browser WebView
+
+// ---- GIÁ PI THẬT (CoinGecko, miễn phí, không cần API key) ----
+function fmtUSD(x){ return '$' + Number(x).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:4}); }
+function fmtVND(x){ return Number(x).toLocaleString('vi-VN',{maximumFractionDigits:0}) + ' VNĐ'; }
+function loadPiPrice(){
+  var el=document.getElementById('piPrice'); var vnd=document.getElementById('piPriceVND');
+  var ch=document.getElementById('piChange'); var tm=document.getElementById('piPriceTime');
+  if(el) el.innerText='1 Pi ≈ đang tải...';
+  if(tm) tm.innerText='Đang lấy giá từ CoinGecko...';
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd,vnd&include_24hr_change=true')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var p=d && d['pi-network']; if(!p || !p.usd) throw new Error('no price');
+      if(el) el.innerText='1 Pi ≈ ' + fmtUSD(p.usd);
+      if(vnd && p.vnd) vnd.innerText='≈ ' + fmtVND(p.vnd);
+      if(ch && p.usd_24h_change!=null){ var c=p.usd_24h_change; ch.innerText=(c>=0?'▲ +':'▼ ')+c.toFixed(2)+'% (24h)'; ch.style.color=c>=0?'#22c55e':'#ef4444'; }
+      if(tm) tm.innerText='Cập nhật lúc: ' + new Date().toLocaleString('vi-VN') + ' • Nguồn: CoinGecko • Chỉ tham khảo, không phải giá mua bán';
+    })
+    .catch(function(){
+      // Fallback: thử nguồn dự phòng CoinPaprika
+      fetch('https://api.coinpaprika.com/v1/tickers/pi-pi-network')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var usd=d && d.quotes && d.quotes.USD && d.quotes.USD.price;
+          if(!usd) throw new Error('no price 2');
+          if(el) el.innerText='1 Pi ≈ ' + fmtUSD(usd);
+          if(vnd) vnd.innerText='≈ ' + fmtVND(usd*26000) + ' (ước tính)';
+          if(ch && d.quotes.USD.percent_change_24h!=null){ var c=d.quotes.USD.percent_change_24h; ch.innerText=(c>=0?'▲ +':'▼ ')+c.toFixed(2)+'% (24h)'; ch.style.color=c>=0?'#22c55e':'#ef4444'; }
+          if(tm) tm.innerText='Cập nhật lúc: ' + new Date().toLocaleString('vi-VN') + ' • Nguồn: CoinPaprika • Chỉ tham khảo';
+        })
+        .catch(function(){
+          if(el) el.innerText='1 Pi ≈ chưa lấy được giá';
+          if(tm) tm.innerText='Không lấy được giá lúc này (mạng / CoinGecko chặn). Bấm nút Cập nhật giá ngay để thử lại.';
+        });
+    });
+}
+
 function bindAll(){
   var b1=document.getElementById('piLoginBtn'); if(b1){ b1.addEventListener('click',toggleConnect); }
   var b2=document.getElementById('piLoginBtn2'); if(b2){ b2.addEventListener('click',toggleConnect); }
@@ -158,8 +288,11 @@ function bindAll(){
   document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ copyMau(b.getAttribute('data-copy')); }); });
   document.querySelectorAll('[data-make]').forEach(function(b){ b.addEventListener('click',function(){ var all=NEWS_VN.concat(NEWS_QT); var n=all.find(function(x){return x.title===b.getAttribute('data-make')}); if(!n) return; document.getElementById('newsInput').value=n.title+'. '+n.sum; var tb=document.querySelectorAll('.bottom button')[2]; switchTab('tao',tb); make3(); }); });
   setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); setTimeout(function(){ setDebug(window.Pi ? "Pi SDK: ĐÃ TẢI ĐƯỢC — nút đã gắn xong, bấm được." : "Pi SDK: CHƯA TẢI ĐƯỢC — mở bằng Pi Browser mới bấm được."); }, 800);
+  var rb=document.getElementById('refreshPriceBtn'); if(rb) rb.addEventListener('click',loadPiPrice);
+  loadPiPrice();
+  setInterval(loadPiPrice, 5*60*1000);
   setStatus("Chưa đăng nhập Pi");
 }
 bindAll();
 try{ var d=JSON.parse(localStorage.getItem('piviet_free')||'null'); if(d){ document.getElementById('newsInput').value=d.news||''; document.getElementById('topicInput').value=d.topic||''; if(d.m1) document.getElementById('mau1').innerText=d.m1; if(d.m2) document.getElementById('mau2').innerText=d.m2; if(d.m3) document.getElementById('mau3').innerText=d.m3; } }catch(e){}
-</script></body></html>
+</script><script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body></html>

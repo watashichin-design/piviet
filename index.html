@@ -68,14 +68,8 @@ iframe{width:100%;border:0;border-radius:12px}
 <span id="piLoginText">Kết nối Pi</span>
 </button>
 </div>
-<button id="piLoginBtn2" type="button" style="width:calc(100% - 28px);margin:8px 14px 0;background:#ffd700;color:#3b0a5e;border:0;padding:14px;border-radius:12px;font-weight:900;cursor:pointer;font-size:15px">
-<span id="dot2" style="color:#ef4444;font-size:22px;line-height:1">●</span>
-<span id="piLoginText2">Kết nối Pi — bấm để đăng nhập</span>
-</button>
 
-<div id="verBadge">✅ Bản v7 — Đèn xanh / đỏ + Giá Pi thật + Đếm lượt đăng nhập</div>
-<div id="loginCount" style="padding:6px 14px;font-size:13px;color:#ffd700;background:#0d0318;text-align:center">👥 Tổng lượt đăng nhập Pi: đang tải... • Máy này: — lần</div>
-<div id="piStatus" style="padding:6px 14px;font-size:12px;color:#c9a8ff;background:#0d0318;text-align:center">Chưa đăng nhập Pi</div>
+<div id="loginCount" style="padding:6px 14px;font-size:18px;font-weight:800;color:#ffd700;background:#0d0318;text-align:center">👥 —</div>
 
 <div id="tab-vn">
 <div class="card dark">
@@ -161,7 +155,7 @@ iframe{width:100%;border:0;border-radius:12px}
 var piSessionToken=null, piUser=null;
 var APPSTUDIO_LOGIN="https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 function onIncompletePaymentFound(p){ console.log("incomplete",p); }
-function setStatus(t){ var s=document.getElementById('piStatus'); if(s) s.innerText=t; }
+function setStatus(t){ /* Da bo dong trang thai - ten da hien tren nut */ }
 function setDebug(t){ /* production: no debug output */ }
 
 function updateConnectUI(){
@@ -282,28 +276,25 @@ function loadPiPrice(){
 
 // ---- BỘ ĐẾM SỐ LƯỢT ĐĂNG NHẬP ----
 // Có 2 số: (1) Tổng của cả app - đếm bằng dịch vụ miễn phí Abacus, ai đăng nhập cũng +1
-// (2) Máy này - đếm bằng localStorage, chỉ đếm trên điện thoại của bạn
 var GLOBAL_COUNT_KEY = 'piviet-pi-logins-v7';
-function showCounts(globalCount){
-  var el=document.getElementById('loginCount'); if(!el) return;
-  var local=0; try{ local=parseInt(localStorage.getItem('piviet_my_logins')||'0',10)||0; }catch(e){}
-  el.innerText='👥 Tổng lượt đăng nhập Pi: ' + (globalCount==null ? '—' : globalCount) + ' lượt • Máy này: ' + local + ' lần';
-}
+function showCounts(globalCount){ var el=document.getElementById('loginCount'); if(!el) return; el.innerText='👥 ' + (globalCount==null ? '—' : globalCount); }
 function loadGlobalCount(){
   // Đọc tổng, không +1 (chỉ +1 khi đăng nhập thành công)
-  fetch('https://abacus.jasoncameron.dev/info/' + GLOBAL_COUNT_KEY)
+  fetch('https://abacus.jasoncameron.dev/get/' + GLOBAL_COUNT_KEY)
     .then(function(r){ return r.json(); })
     .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
     .catch(function(){ showCounts(null); });
 }
 function incrementLoginCount(){
-  // 1) Máy này +1
-  try{ var c=parseInt(localStorage.getItem('piviet_my_logins')||'0',10)||0; localStorage.setItem('piviet_my_logins', String(c+1)); }catch(e){}
-  // 2) Tổng của app +1
   fetch('https://abacus.jasoncameron.dev/hit/' + GLOBAL_COUNT_KEY)
     .then(function(r){ return r.json(); })
     .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
-    .catch(function(){ showCounts(null); });
+    .catch(function(){
+      fetch('https://api.countapi.xyz/hit/piviet-v7/pi-logins')
+        .then(function(r){ return r.json(); })
+        .then(function(d){ showCounts(d && d.value!=null ? d.value : null); })
+        .catch(function(){ showCounts(null); });
+    });
 }
 
 function bindAll(){
